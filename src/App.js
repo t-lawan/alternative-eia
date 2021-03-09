@@ -6,6 +6,7 @@ import { reducer } from './Store/reducer';
 import Home from './Pages/Home';
 import Stories from './Pages/Stories';
 import EIA from './Pages/EIA';
+import { PageUrls } from './Utility/helper';
 
 const store = createStore(
   reducer,
@@ -17,9 +18,9 @@ function App() {
     <Provider store={store}>
       <Router>
         <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/stories" exact component={Stories} />
-          <Route path="/eia" exact component={EIA} />
+          <Route path={PageUrls.STORIES}  exact component={Stories} />
+          <Route path={PageUrls.EIA}  exact component={EIA} />
+          <Route path={PageUrls.HOME} exact component={Home} />
         </Switch>
       </Router>
     </Provider>

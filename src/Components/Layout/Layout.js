@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from 'styled-components'
 import { Helmet } from "react-helmet";
 import { GlobalStyle } from "../Global/global.styles";
+import Navbar from "../Navbar/Navbar";
 
 
 export const Main = styled.section`
@@ -72,6 +73,7 @@ const Layout = props => {
           ]}
         />
         <GlobalStyle />
+        <Navbar />
         <Main>{props.children}</Main>
       </>
     );

@@ -8,3 +8,10 @@ export const InteractiveFictionDisplay = {
     LEFT: 'LEFT',
     RIGHT: 'RIGHT'
 }
+
+export const PageUrls = {
+    HOME: '/',
+    EIA: '/eia',
+    STORIES: '/stories'
+
+}
