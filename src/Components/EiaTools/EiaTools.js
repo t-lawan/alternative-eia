@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import TerrainEnvironment from "../Environment/TerrainEnvironment";
+import TestEnvironment from "../Environment/TestEnvironment";
 
 const EiaToolsWrapper = styled.div`
   height: 100vh;
@@ -18,7 +19,6 @@ const EiaSideNavbarWrapper = styled.div`
   padding: 1rem;
   width: 10%;
   height: 100%;
-  background: yellow;
 `;
 
 const ToolsWrapper = styled.section`
@@ -34,7 +34,7 @@ const EiaToolType = {
 };
 
 const EiaTools = () => {
-  const [toolType, setToolType] = useState(EiaToolType.DATA_GATHER);
+  const [toolType, setToolType] = useState(EiaToolType.VISUALISE_DATA);
 
   return (
     <EiaToolsWrapper>
@@ -56,14 +56,14 @@ const EiaTools = () => {
             {" "}
             Data Gathering Tool
           </EiaSideNavbarText> */}
-          <TerrainEnvironment />
+          <TestEnvironment />
         </ToolWrapper>
         <ToolWrapper isSelected={toolType === EiaToolType.VISUALISE_DATA}>
           <EiaSideNavbarText
             
           >
             {" "}
-            Data Visualisation Tool
+            <TerrainEnvironment />
           </EiaSideNavbarText>
         </ToolWrapper>
       </ToolsWrapper>
