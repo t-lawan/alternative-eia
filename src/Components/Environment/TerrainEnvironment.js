@@ -88,7 +88,6 @@ class TerrainEnvironment extends Component {
     this.controls = new FirstPersonControls( this.camera, this.renderer.domElement );
 	this.controls.movementSpeed = 150;
     this.controls.lookSpeed = 0.1;
-    this.controls.drag
   };
 
   setupRenderer = () => {
