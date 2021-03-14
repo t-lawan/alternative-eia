@@ -11,7 +11,7 @@ const NavbarWrapper = styled.div`
     position: absolute;
     padding: 2rem;
     z-index: 2000;
-    mix-blend-mode: multiply;
+    /* mix-blend-mode: multiply; */
 
 
 `;
@@ -19,20 +19,21 @@ const NavbarWrapper = styled.div`
 const StyledNavLink = styled(NavLink)`
     padding: 1rem;
     text-decoration: none;
+    color: ${props => props.invert ? 'white' : 'inherit'};
 `
 
 
 
 
-const Navbar = () => {
+const Navbar = (props) => {
 
 
 
     return (
         <NavbarWrapper>
-            <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.HOME}> Home</StyledNavLink> 
-            <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.EIA}> EIA</StyledNavLink> 
-            <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.STORIES}> Stories</StyledNavLink> 
+            <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.HOME}> Home</StyledNavLink> 
+            <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.EIA}> EIA</StyledNavLink> 
+            <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.STORIES}> Stories</StyledNavLink> 
         </NavbarWrapper>
     );
   };

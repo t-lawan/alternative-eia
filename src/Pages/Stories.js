@@ -9,7 +9,7 @@ const StoriesWrapper = styled.div`
 
 const Stories = () => {
     return (
-      <Layout>
+      <Layout invertNavbar={true}>
         <StoriesWrapper>
             <InteractiveFiction />
         </StoriesWrapper>

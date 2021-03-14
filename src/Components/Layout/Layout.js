@@ -73,7 +73,7 @@ const Layout = props => {
           ]}
         />
         <GlobalStyle />
-        <Navbar />
+        <Navbar invert={props.invertNavbar} />
         <Main>{props.children}</Main>
       </>
     );

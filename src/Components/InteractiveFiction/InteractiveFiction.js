@@ -10,19 +10,22 @@ export const InteractiveFictionWrapper = styled.div`
   grid-template-columns: 1fr 1fr;
   width: 100vw;
   height: 100vh;
+  background: black;
   
 `;
 
 const QuestionWrapper = styled.div`
-    width: 100vw;
+    width: 80vw;
     height: 10vh;
     background: transparent;
     position: fixed;
     text-align: center;
+    top: 50%;
+    left: 10%;
 `;
 
-const Question = styled.h1`
-
+const Question = styled.h2`
+  color: silver;
 `
 
 const LeftSection = styled.div`
