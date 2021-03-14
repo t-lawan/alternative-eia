@@ -134,7 +134,7 @@ class TerrainEnvironment extends Component {
   };
 
   loadFinished = () => {
-    this.addMultipleTrees()
+    // this.addMultipleTrees()
 
     // this.props.hasLoaded();
     this.onWindowResize();
@@ -263,11 +263,11 @@ class TerrainEnvironment extends Component {
 
   addMultipleTrees = () => {
     let noiseData = this.generateHeight(this.worldWidth, this.worldDepth);
-
+    console.log('DATA', noiseData)
     for (let x = 0; x < this.worldDepth; x++) {
       for (let y = 0; y < this.worldDepth; y++) {
         let index = y * this.worldDepth + x;
-        if (noiseData[index] > 95) {
+        if (noiseData[index] > 98) {
           let mesh = this.mesh.clone();
           let px =
             this.terrainSize * (x / this.worldDepth) - this.terrainSize / 2;
@@ -279,14 +279,14 @@ class TerrainEnvironment extends Component {
             noiseData[index] * 10,
             y - this.worldWidth / 2 + py
           );
-          const lod = new THREE.LOD();
-          for (let i = 0; i < 3; i++) {
-            if(i = 0) {
-              mesh.visible = false;
-            }
-            lod.addLevel(mesh, i * 500);
-          }
-          this.scene.add(lod);
+          // const lod = new THREE.LOD();
+          // for (let i = 0; i < 3; i++) {
+          //   if(i = 0) {
+          //     mesh.visible = false;
+          //   }
+          //   lod.addLevel(mesh, i * 1000);
+          // }
+          this.scene.add(mesh);
         }
       }
     }
