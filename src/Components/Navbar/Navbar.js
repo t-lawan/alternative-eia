@@ -31,8 +31,8 @@ const Navbar = () => {
     return (
         <NavbarWrapper>
             <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.HOME}> Home</StyledNavLink> 
-            <StyledNavLink to={PageUrls.EIA}> EIA</StyledNavLink> 
-            <StyledNavLink to={PageUrls.STORIES}> Stories</StyledNavLink> 
+            <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.EIA}> EIA</StyledNavLink> 
+            <StyledNavLink activeStyle={{textDecoration: 'underline'}} to={PageUrls.STORIES}> Stories</StyledNavLink> 
         </NavbarWrapper>
     );
   };

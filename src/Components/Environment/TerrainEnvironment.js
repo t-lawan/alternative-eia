@@ -1,8 +1,15 @@
 import React, { Component } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { FirstPersonControls } from "three/examples/jsm/controls/FirstPersonControls";
 import { ImprovedNoise } from "three/examples/jsm/math/ImprovedNoise";
 import { Colours } from "../Global/global.styles";
+import TreeG from "../../Assets/Models/Tree.glb";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import Wandering from "../../Assets/Audio/WANDERING.mp3";
+import BatFlying from "../../Assets/Audio/BAT_FLYING.mp3";
+import TrainOne from "../../Assets/Audio/TRAIN_ONE.mp3";
+import TrainTwo from "../../Assets/Audio/TRAIN_TWO.mp3";
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
 };
@@ -11,8 +18,10 @@ class TerrainEnvironment extends Component {
   width;
   height;
   clock;
-  worldWidth = 256;
-  worldDepth = 256;
+  worldWidth = 128;
+  worldDepth = 128;
+  numberOfTrees = 50;
+  terrainSize = 7500;
   componentDidMount() {
     this.init();
     this.startAnimationLoop();
@@ -27,15 +36,174 @@ class TerrainEnvironment extends Component {
   }
 
   init = () => {
-    this.setupScene()
+    this.setupScene();
     this.setupCamera();
-    this.createTerrain()
+    this.createTerrain();
+    this.addLights();
+    this.setupLoadingManager();
     this.setupRenderer();
     this.setupControl();
+    // this.setupGrid();
+    this.createAudioListener();
+    this.loadAudio();
+    this.addTree();
     this.clock = new THREE.Clock();
+  };
 
+  setupLoadingManager = () => {
+    this.manager = new THREE.LoadingManager();
+    this.manager.onStart = this.loadStart;
+    this.manager.onProgress = this.loadProgressing;
+    this.manager.onLoad = this.loadFinished;
+  };
 
-  }
+  loadStart = (url, itemsLoaded, itemsTotal) => {
+    console.log("STARTED");
+  };
+
+  loadProgressing = (url, itemsLoaded, itemsTotal) => {
+    console.log(url);
+    console.log(itemsLoaded, itemsTotal);
+  };
+
+  loadFinished = () => {
+    this.addMultipleTrees()
+
+    // this.props.hasLoaded();
+    this.onWindowResize();
+  };
+
+  createAudioListener = () => {
+    this.listener = new THREE.AudioListener();
+    this.camera.add(this.listener);
+  };
+
+  loadAudio = () => {
+    let musicLoader = new THREE.AudioLoader(this.manager);
+    let batSoundLoader = new THREE.AudioLoader(this.manager);
+    let trainSoundLoader = new THREE.AudioLoader(this.manager);
+
+    this.music = new THREE.PositionalAudio(this.listener);
+    this.batSound = new THREE.PositionalAudio(this.listener);
+    this.trainSound = new THREE.PositionalAudio(this.listener)
+
+    musicLoader.load(TrainTwo, buffer => {
+      this.music.setBuffer(buffer);
+      // this.music.play();
+      this.createMusicSpeaker();
+    });
+
+    batSoundLoader.load(BatFlying, buffer => {
+      this.batSound.setBuffer(buffer);
+      // this.music.play();
+      this.createBatSpeaker();
+    });
+
+    trainSoundLoader.load(TrainOne, buffer => {
+      this.trainSound.setBuffer(buffer);
+      // this.music.play();
+      this.createTrainSpeaker();
+    });
+
+  };
+
+  createTrainSpeaker = () => {
+    //Music
+    let sphere = new THREE.SphereGeometry(20, 32, 16);
+    let material = new THREE.MeshPhongMaterial({ color:'orange' });
+    let mesh = new THREE.Mesh(sphere, material);
+    mesh.position.set(0, 1500, 0);
+    this.scene.add(mesh);
+    mesh.add(this.music);
+    this.trainSound.setRefDistance(20);
+    this.trainSound.play();
+  };
+
+  createMusicSpeaker = () => {
+    //Music
+    let sphere = new THREE.SphereGeometry(20, 32, 16);
+    let material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
+    let mesh = new THREE.Mesh(sphere, material);
+    mesh.position.set(4000, 1500, 0);
+    this.scene.add(mesh);
+    mesh.add(this.music);
+    this.music.setRefDistance(20);
+    this.music.play();
+  };
+
+  createBatSpeaker = () => {
+    //Music
+    let sphere = new THREE.SphereGeometry(20, 32, 16);
+    let material = new THREE.MeshPhongMaterial({ color: 'yellow' });
+    let mesh = new THREE.Mesh(sphere, material);
+    mesh.position.set(500, 1500, 3000);
+    this.scene.add(mesh);
+    mesh.add(this.music);
+    this.batSound.setRefDistance(20);
+    this.batSound.play();
+  };
+  addLights = () => {
+    const width = this.terrainSize;
+    const height = this.terrainSize;
+    const intensity = 10;
+    const rectLight = new THREE.RectAreaLight(
+      0xffffff,
+      intensity,
+      width,
+      height
+    );
+    rectLight.position.set(5, 5000, 0);
+    rectLight.lookAt(0, 1000, 0);
+    this.scene.add(rectLight);
+    const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+    this.scene.add(light);
+  };
+
+  addTree = () => {
+    const loader = new GLTFLoader(this.manager);
+    this.tree = new THREE.Object3D();
+
+    loader.load(TreeG, gltf => {
+      this.mesh = gltf.scene;
+      // console.log('MESH', this.mesh)
+      this.mesh.scale.multiplyScalar(50);
+      // this.addMultipleTrees();
+      
+    });
+
+    // mesh.visible = true;
+  };
+
+  addMultipleTrees = () => {
+    let noiseData = this.generateHeight(this.worldWidth, this.worldDepth);
+
+    for (let x = 0; x < this.worldDepth; x++) {
+      for (let y = 0; y < this.worldDepth; y++) {
+        let index = y * this.worldDepth + x;
+        if (noiseData[index] > 95) {
+          let mesh = this.mesh.clone();
+          let px =
+            this.terrainSize * (x / this.worldDepth) - this.terrainSize / 2;
+          let py =
+            this.terrainSize * (y / this.worldDepth) - this.terrainSize / 2;
+          let randomSize = (Math.random() * 10) - 5;
+          mesh.position.set(
+            x - this.worldWidth / 2 + px + randomSize,
+            noiseData[index] * 10,
+            y - this.worldWidth / 2 + py
+          );
+          const lod = new THREE.LOD();
+          for (let i = 0; i < 3; i++) {
+            if(i = 0) {
+              mesh.visible = false;
+            }
+            lod.addLevel(mesh, i * 500);
+          }
+          this.scene.add(lod);
+        }
+      }
+    }
+  };
 
   // Standard scene setup in Three.js. Check "Creating a scene" manual for more information
   // https://threejs.org/docs/#manual/en/introduction/Creating-a-scene
@@ -46,7 +214,14 @@ class TerrainEnvironment extends Component {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xefd1b5);
-    this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0025);
+    this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0005);
+  };
+
+  setupGrid = () => {
+    const gridHelper = new THREE.GridHelper(this.worldWidth, this.worldWidth);
+    this.scene.add(gridHelper);
+    const axesHelper = new THREE.AxesHelper(5);
+    this.scene.add(axesHelper);
   };
 
   setupCamera = () => {
@@ -56,38 +231,62 @@ class TerrainEnvironment extends Component {
       1,
       10000
     );
-    this.camera.position.set(100, 800, -800);
+    this.camera.position.set(100, 800, -1600);
     this.camera.lookAt(-100, 810, -800);
   };
 
   createTerrain = () => {
-    const data = this.generateHeight( this.worldWidth, this.worldDepth );
-    this.geometry = new THREE.PlaneGeometry(7500, 7500, this.worldWidth - 1, this.worldDepth -1);
-    this.geometry.rotateX(-Math.PI/2);
+    const data = this.generateHeight(this.worldWidth, this.worldDepth);
+    this.geometry = new THREE.PlaneGeometry(
+      this.terrainSize,
+      this.terrainSize,
+      this.worldWidth - 1,
+      this.worldDepth - 1
+    );
+    this.geometry.rotateX(-Math.PI / 2);
 
     this.vertices = this.geometry.attributes.position.array;
-
-
-    for ( let i = 0, j = 0, l = this.vertices.length; i < l; i ++, j += 3 ) {
-
-        this.vertices[ j + 1 ] = data[ i ] * 10;
-
+    // console.log('VERT', this.vertices)
+    for (let i = 0, j = 0, l = this.vertices.length; i < l; i++, j += 3) {
+      this.vertices[j + 1] = data[i] * 10;
     }
 
-    this.texture = new THREE.CanvasTexture(this.generateTexture(data, this.worldWidth, this.worldDepth));
+    this.texture = new THREE.CanvasTexture(
+      this.generateTexture(data, this.worldWidth, this.worldDepth)
+    );
     this.texture.wrapS = THREE.ClampToEdgeWrapping;
     this.texture.wrapT = THREE.ClampToEdgeWrapping;
 
-    this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshBasicMaterial({map: this.texture}))
+    this.mesh = new THREE.Mesh(
+      this.geometry,
+      new THREE.MeshBasicMaterial({
+        map: this.texture,
+        side: THREE.DoubleSide,
+        color: new THREE.Color("grey"),
+        reflectivity: 0.8
+      })
+      // new THREE.MeshPhongMaterial({
+      //   side: THREE.DoubleSide,
+      //   map: this.texture,
+      //   color: new THREE.Color("yellow"),
+      //   emissive: new THREE.Color(0xeee),
+      //   reflectivity: 1.0
+      // })
+      // new THREE.MeshBasicMaterial({wireframe: true})
+    );
     this.scene.add(this.mesh);
-
   };
 
   setupControl = () => {
     // this.controls = new OrbitControls(this.camera, this.mount);
-    this.controls = new FirstPersonControls( this.camera, this.renderer.domElement );
-	this.controls.movementSpeed = 150;
+    this.controls = new FirstPersonControls(this.camera, this.mount);
+    this.controls.movementSpeed = 1500;
     this.controls.lookSpeed = 0.1;
+
+    // this.controls.activeLook = false
+    // this.controls.constrainVertical = true
+    // this.controls.verticalMax = 0.5 * Math.PI
+    // this.controls.movementSpeed = 1.2;
   };
 
   setupRenderer = () => {
@@ -101,7 +300,7 @@ class TerrainEnvironment extends Component {
   };
 
   startAnimationLoop = () => {
-      this.controls.update(this.clock.getDelta())
+    this.controls.update(this.clock.getDelta());
     this.renderer.render(this.scene, this.camera);
 
     // The window.requestAnimationFrame() method tells the browser that you wish to perform
