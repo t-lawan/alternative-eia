@@ -69,12 +69,12 @@ class TerrainEnvironment extends Component {
     this.invertPass = new NodePass()
     this.saturationPass = new NodePass()
     this.blurPass = new NodePass()
+    this.composer.addPass(this.blurPass)
 
     this.composer.addPass(this.invertPass)
     this.composer.addPass(this.saturationPass)
-    this.composer.addPass(this.blurPass)
 
-    const alpha = new Nodes.FloatNode( 1 );
+    const alpha = new Nodes.FloatNode( 0.8 );
 
 		this.screen = new Nodes.ScreenNode();
 		const inverted = new Nodes.MathNode( this.screen, Nodes.MathNode.INVERT );
@@ -111,10 +111,13 @@ class TerrainEnvironment extends Component {
 		const blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
     blurScreen.size = new THREE.Vector2( size.width, size.height );
 
+    blurScreen.radius.x = 5.0
+    blurScreen.radius.y = 10.0
+    // blurScreen.blurX = 0.5
+    // blurScreen.blurY = 0.5
 
     this.blurPass.input = blurScreen;
-    blurScreen.radius.x = 0
-    blurScreen.radius.y = 0
+    this.blurPass.needsUpdate = true;
   }
 
   setupLoadingManager = () => {
@@ -313,10 +316,10 @@ class TerrainEnvironment extends Component {
 
   setupCamera = () => {
     this.camera = new THREE.PerspectiveCamera(
-      60,
+      50,
       this.width / this.height,
       1,
-      5000
+      8000
     );
     this.camera.position.set(100, 800, -1600);
     this.camera.lookAt(-100, 810, -800);
@@ -367,7 +370,8 @@ class TerrainEnvironment extends Component {
   setupControl = () => {
     // this.controls = new OrbitControls(this.camera, this.mount);
     this.controls = new FirstPersonControls(this.camera, this.mount);
-    this.controls.movementSpeed = 1500;
+    // this.controls.movementSpeed = 1500;
+    this.controls.movementSpeed = 100;
     this.controls.lookSpeed = 0.1;
 
     // this.controls.activeLook = false
@@ -389,7 +393,7 @@ class TerrainEnvironment extends Component {
   startAnimationLoop = () => {
     this.controls.update(this.clock.getDelta());
     // this.renderer.render(this.scene, this.camera);
-    this.frame.update( this.clock.getDelta() ).updateNode( this.invertPass.material );
+    this.frame.update( this.clock.getDelta() ).updateNode( this.invertPass.material ).updateNode( this.blurPass.material );
 
     this.composer.render();
     // The window.requestAnimationFrame() method tells the browser that you wish to perform
