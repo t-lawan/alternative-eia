@@ -192,7 +192,7 @@ class TerrainEnvironment extends Component {
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(0, 1500, 0);
     this.scene.add(mesh);
-    mesh.add(this.music);
+    mesh.add(this.trainSound);
     this.trainSound.setRefDistance(20);
     this.trainSound.play();
   };
@@ -216,7 +216,7 @@ class TerrainEnvironment extends Component {
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, 3000);
     this.scene.add(mesh);
-    mesh.add(this.music);
+    mesh.add(this.batSound);
     this.batSound.setRefDistance(20);
     this.batSound.play();
   };
@@ -228,7 +228,7 @@ class TerrainEnvironment extends Component {
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, -2500);
     this.scene.add(mesh);
-    mesh.add(this.music);
+    mesh.add(this.batFlying);
     this.batFlying.setRefDistance(40);
     this.batFlying.play();
   };
@@ -304,7 +304,7 @@ class TerrainEnvironment extends Component {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xefd1b5);
-    this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.0005);
+    this.scene.fog = new THREE.FogExp2(0xefd1b5, 0.00075);
   };
 
   setupGrid = () => {
@@ -371,7 +371,7 @@ class TerrainEnvironment extends Component {
     // this.controls = new OrbitControls(this.camera, this.mount);
     this.controls = new FirstPersonControls(this.camera, this.mount);
     // this.controls.movementSpeed = 1500;
-    this.controls.movementSpeed = 100;
+    this.controls.movementSpeed = 150;
     this.controls.lookSpeed = 0.1;
 
     // this.controls.activeLook = false
