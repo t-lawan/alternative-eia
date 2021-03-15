@@ -137,7 +137,7 @@ class TerrainEnvironment extends Component {
   };
 
   loadFinished = () => {
-    // this.addMultipleTrees()
+    this.addMultipleTrees()
 
     // this.props.hasLoaded();
     this.onWindowResize();
@@ -270,7 +270,7 @@ class TerrainEnvironment extends Component {
     for (let x = 0; x < this.worldDepth; x++) {
       for (let y = 0; y < this.worldDepth; y++) {
         let index = y * this.worldDepth + x;
-        if (noiseData[index] > 98) {
+        if (noiseData[index] < 3 || noiseData[index] > 97) {
           let mesh = this.mesh.clone();
           let px =
             this.terrainSize * (x / this.worldDepth) - this.terrainSize / 2;
