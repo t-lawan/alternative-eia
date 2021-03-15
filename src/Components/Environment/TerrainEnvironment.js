@@ -10,10 +10,11 @@ import BatFlying from "../../Assets/Audio/BAT_FLYING.mp3";
 import BatSounds from "../../Assets/Audio/BAT_SOUNDS.mp3";
 import TrainOne from "../../Assets/Audio/TRAIN_ONE.mp3";
 import TrainTwo from "../../Assets/Audio/TRAIN_TWO.mp3";
-import {EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-import {RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-import {NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass'
-import * as Nodes from 'three/examples/jsm/nodes/Nodes'
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { NodePass } from "three/examples/jsm/nodes/postprocessing/NodePass";
+import * as Nodes from "three/examples/jsm/nodes/Nodes";
+import StarFalling from '../../Assets/Videos/star-falling.mp4'
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
 };
@@ -28,7 +29,7 @@ class TerrainEnvironment extends Component {
   terrainSize = 7500;
   nodePost;
   frame;
-  
+
   componentDidMount() {
     this.init();
     this.startAnimationLoop();
@@ -52,73 +53,76 @@ class TerrainEnvironment extends Component {
     this.addLights();
     this.setupLoadingManager();
     this.setupRenderer();
-    this.setupPostProcessing()
+    this.setupPostProcessing();
     this.setupControl();
     // this.setupGrid();
     this.createAudioListener();
     this.loadAudio();
+    // this.createVideoPlane()
     this.addTree();
     this.clock = new THREE.Clock();
   };
 
   setupPostProcessing = () => {
     this.frame = new Nodes.NodeFrame();
-    this.composer = new EffectComposer(this.renderer)
-    this.composer.addPass(new RenderPass(this.scene, this.camera))
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-    this.invertPass = new NodePass()
-    this.saturationPass = new NodePass()
-    this.blurPass = new NodePass()
-    this.composer.addPass(this.blurPass)
+    this.invertPass = new NodePass();
+    this.saturationPass = new NodePass();
+    this.blurPass = new NodePass();
+    this.composer.addPass(this.blurPass);
 
-    this.composer.addPass(this.invertPass)
-    this.composer.addPass(this.saturationPass)
+    this.composer.addPass(this.invertPass);
+    this.composer.addPass(this.saturationPass);
 
-    const alpha = new Nodes.FloatNode( 0.8 );
+    const alpha = new Nodes.FloatNode(0.8);
 
-		this.screen = new Nodes.ScreenNode();
-		const inverted = new Nodes.MathNode( this.screen, Nodes.MathNode.INVERT );
+    this.screen = new Nodes.ScreenNode();
+    const inverted = new Nodes.MathNode(this.screen, Nodes.MathNode.INVERT);
 
-		let fade = new Nodes.MathNode(
-							this.screen,
-							inverted,
-							alpha,
-							Nodes.MathNode.MIX
-						);
+    let fade = new Nodes.MathNode(
+      this.screen,
+      inverted,
+      alpha,
+      Nodes.MathNode.MIX
+    );
 
     this.invertPass.input = fade;
-    
 
     let screen = new Nodes.ScreenNode();
-    const sat = new Nodes.FloatNode( 0 );
+    const sat = new Nodes.FloatNode(0);
 
-    const satrgb = new Nodes.FunctionNode( [
-      "vec3 satrgb( vec3 rgb, float adjustment ) {",
-      // include luminance function from LuminanceNode
-      "	vec3 intensity = vec3( luminance( rgb ) );",
-      "	return mix( intensity, rgb, adjustment );",
-      "}"
-    ].join( "\n" ), [ Nodes.LuminanceNode.Nodes.luminance ] );
+    const satrgb = new Nodes.FunctionNode(
+      [
+        "vec3 satrgb( vec3 rgb, float adjustment ) {",
+        // include luminance function from LuminanceNode
+        "	vec3 intensity = vec3( luminance( rgb ) );",
+        "	return mix( intensity, rgb, adjustment );",
+        "}"
+      ].join("\n"),
+      [Nodes.LuminanceNode.Nodes.luminance]
+    );
 
-    const saturation = new Nodes.FunctionCallNode( satrgb );
+    const saturation = new Nodes.FunctionCallNode(satrgb);
     saturation.inputs.rgb = screen;
     saturation.inputs.adjustment = sat;
 
-    this.saturationPass.input = saturation; 
+    this.saturationPass.input = saturation;
 
-    const size = this.renderer.getDrawingBufferSize( new THREE.Vector2() );
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
 
-		const blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
-    blurScreen.size = new THREE.Vector2( size.width, size.height );
+    const blurScreen = new Nodes.BlurNode(new Nodes.ScreenNode());
+    blurScreen.size = new THREE.Vector2(size.width, size.height);
 
-    blurScreen.radius.x = 5.0
-    blurScreen.radius.y = 10.0
+    blurScreen.radius.x = 5.0;
+    blurScreen.radius.y = 10.0;
     // blurScreen.blurX = 0.5
     // blurScreen.blurY = 0.5
 
     this.blurPass.input = blurScreen;
     this.blurPass.needsUpdate = true;
-  }
+  };
 
   setupLoadingManager = () => {
     this.manager = new THREE.LoadingManager();
@@ -137,7 +141,7 @@ class TerrainEnvironment extends Component {
   };
 
   loadFinished = () => {
-    this.addMultipleTrees()
+    this.addMultipleTrees();
 
     // this.props.hasLoaded();
     this.onWindowResize();
@@ -156,8 +160,8 @@ class TerrainEnvironment extends Component {
 
     this.music = new THREE.PositionalAudio(this.listener);
     this.batSound = new THREE.PositionalAudio(this.listener);
-    this.trainSound = new THREE.PositionalAudio(this.listener)
-    this.batFlying= new THREE.PositionalAudio(this.listener)
+    this.trainSound = new THREE.PositionalAudio(this.listener);
+    this.batFlying = new THREE.PositionalAudio(this.listener);
 
     musicLoader.load(TrainTwo, buffer => {
       this.music.setBuffer(buffer);
@@ -182,13 +186,12 @@ class TerrainEnvironment extends Component {
       // this.music.play();
       this.createTrainSpeaker();
     });
-
   };
 
   createTrainSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color:'orange' });
+    let material = new THREE.MeshPhongMaterial({ color: "orange" });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(0, 1500, 0);
     this.scene.add(mesh);
@@ -212,7 +215,7 @@ class TerrainEnvironment extends Component {
   createBatSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: 'yellow' });
+    let material = new THREE.MeshPhongMaterial({ color: "yellow" });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, 3000);
     this.scene.add(mesh);
@@ -224,7 +227,7 @@ class TerrainEnvironment extends Component {
   createBatFlyingSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: 'yellow' });
+    let material = new THREE.MeshPhongMaterial({ color: "yellow" });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, -2500);
     this.scene.add(mesh);
@@ -258,15 +261,37 @@ class TerrainEnvironment extends Component {
       // console.log('MESH', this.mesh)
       this.mesh.scale.multiplyScalar(50);
       // this.addMultipleTrees();
-      
     });
 
     // mesh.visible = true;
   };
 
+  createVideoPlane = () => {
+    let video = document.getElementById("video");
+    let texture = new THREE.VideoTexture(video);
+    // texture.needsUpdate;
+    texture.needsUpdate = true;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBFormat;
+    texture.crossOrigin = "anonymous";
+
+    var imageObject = new THREE.Mesh(
+      new THREE.PlaneGeometry(500, 500),
+      new THREE.MeshBasicMaterial({ map: texture })
+    );
+    imageObject.position.set(0, 1300, 0);
+
+    this.scene.add(imageObject);
+
+    video.src = StarFalling;
+    video.load();
+    video.play();
+  };
+
   addMultipleTrees = () => {
     let noiseData = this.generateHeight(this.worldWidth, this.worldDepth);
-    console.log('DATA', noiseData)
+    console.log("DATA", noiseData);
     for (let x = 0; x < this.worldDepth; x++) {
       for (let y = 0; y < this.worldDepth; y++) {
         let index = y * this.worldDepth + x;
@@ -276,7 +301,7 @@ class TerrainEnvironment extends Component {
             this.terrainSize * (x / this.worldDepth) - this.terrainSize / 2;
           let py =
             this.terrainSize * (y / this.worldDepth) - this.terrainSize / 2;
-          let randomSize = (Math.random() * 10) - 5;
+          let randomSize = Math.random() * 10 - 5;
           mesh.position.set(
             x - this.worldWidth / 2 + px + randomSize,
             noiseData[index] * 10,
@@ -319,7 +344,7 @@ class TerrainEnvironment extends Component {
       50,
       this.width / this.height,
       1,
-      8000
+      2000
     );
     this.camera.position.set(100, 800, -1600);
     this.camera.lookAt(-100, 810, -800);
@@ -393,7 +418,10 @@ class TerrainEnvironment extends Component {
   startAnimationLoop = () => {
     this.controls.update(this.clock.getDelta());
     // this.renderer.render(this.scene, this.camera);
-    this.frame.update( this.clock.getDelta() ).updateNode( this.invertPass.material ).updateNode( this.blurPass.material );
+    this.frame
+      .update(this.clock.getDelta())
+      .updateNode(this.invertPass.material)
+      .updateNode(this.blurPass.material);
 
     this.composer.render();
     // The window.requestAnimationFrame() method tells the browser that you wish to perform
