@@ -23,7 +23,7 @@ import { VideoName } from "../../Utility/helper";
 import styled from "styled-components";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingBar from "../Loading/LoadingBar/LoadingBar";
-import Logo from '../../Assets/Images/HS2Logo.png'
+import Logo from '../../Assets/Images/LOGO.png'
 
 
 
@@ -50,7 +50,7 @@ const LoadingWrapper = styled.div`
 const LoadingFlexWrapper = styled.div``;
 
 const Image = styled.img`
-width: 20%;
+/* width: 20%; */
 
 `
 
@@ -68,7 +68,7 @@ const VideoModalWrapper = styled.div`
   height: 100%;
   width: 100%;
   z-index: 50;
-  background: rgba(255,196,89, 0.5);
+  background: rgba(209,114,39, 0.5);
 `;
 
 const VideoWrapper = styled.div`
@@ -80,7 +80,7 @@ const VideoWrapper = styled.div`
   height: 100%;
 `;
 const Text = styled.h1`
-  color:rgb(255,196,89);
+  color:rgb(209,114,39);
 `;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
