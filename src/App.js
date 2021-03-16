@@ -18,9 +18,9 @@ function App() {
     <Provider store={store}>
       <Router>
         <Switch>
-          <Route path={PageUrls.STORIES}  exact component={Stories} />
-          <Route path={PageUrls.EIA}  exact component={EIA} />
-          <Route path={PageUrls.HOME} exact component={Home} />
+          {/* <Route path={PageUrls.STORIES}  exact component={Stories} /> */}
+          <Route path={PageUrls.HOME}  exact component={EIA} />
+          {/* <Route path={PageUrls.HOME} exact component={Home} /> */}
         </Switch>
       </Router>
     </Provider>

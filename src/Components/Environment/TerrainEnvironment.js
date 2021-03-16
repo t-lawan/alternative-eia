@@ -14,7 +14,66 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { NodePass } from "three/examples/jsm/nodes/postprocessing/NodePass";
 import * as Nodes from "three/examples/jsm/nodes/Nodes";
-import StarFalling from '../../Assets/Videos/star-falling.mp4'
+import StarFalling from "../../Assets/Videos/star-falling.mp4";
+import { VideoName } from "../../Utility/helper";
+import styled from "styled-components";
+import VideoPlayer from "../VideoPlayer/VideoPlayer";
+import LoadingBar from "../Loading/LoadingBar/LoadingBar";
+import Logo from '../../Assets/Images/HS2Logo.png'
+const TextDisplayWrapper = styled.div`
+  position: fixed;
+  bottom: 10%;
+  left: 10%;
+  width: 80%;
+  height: 10%;
+`;
+const CloseText = styled.h2`
+  text-decoration: underline;
+`;
+const LoadingWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  background: transparent;
+`;
+
+const LoadingFlexWrapper = styled.div``;
+
+const Image = styled.img`
+width: 20%;
+
+`
+
+const LoadingBarWrapper = styled.div`
+  bottom: 10%;
+  position: fixed;
+  width: 50%;
+  height: 10%;
+  left: 25%;
+`;
+
+const VideoModalWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 50;
+  background: orange;
+`;
+
+const VideoWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+`;
+const Text = styled.h1`
+  color: orange;
+`;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
 };
@@ -29,6 +88,17 @@ class TerrainEnvironment extends Component {
   terrainSize = 7500;
   nodePost;
   frame;
+  lastBoundaryTouched = VideoName.NONE;
+  collidableMeshList = [];
+  state = {
+    loaded: 0,
+    total: 1,
+    hasLoaded: false,
+    showSimulation: false,
+    isInVideoBox: false,
+    showVideo: false,
+    pause: false
+  };
 
   componentDidMount() {
     this.init();
@@ -58,7 +128,7 @@ class TerrainEnvironment extends Component {
     // this.setupGrid();
     this.createAudioListener();
     this.loadAudio();
-    // this.createVideoPlane()
+    this.createVideoPlane();
     this.addTree();
     this.clock = new THREE.Clock();
   };
@@ -132,17 +202,28 @@ class TerrainEnvironment extends Component {
   };
 
   loadStart = (url, itemsLoaded, itemsTotal) => {
-    console.log("STARTED");
+    this.setState({
+      loaded: itemsLoaded,
+      total: itemsTotal
+    });
   };
 
   loadProgressing = (url, itemsLoaded, itemsTotal) => {
-    console.log(url);
-    console.log(itemsLoaded, itemsTotal);
+    this.setState({
+      loaded: itemsLoaded,
+      total: itemsTotal
+    });
+    // console.log(url);
+    // console.log(itemsLoaded, itemsTotal);
   };
 
   loadFinished = () => {
     this.addMultipleTrees();
-
+    this.setState({
+      loaded: 0,
+      total: 1,
+      hasLoaded: true
+    });
     // this.props.hasLoaded();
     this.onWindowResize();
   };
@@ -260,6 +341,9 @@ class TerrainEnvironment extends Component {
       this.mesh = gltf.scene;
       // console.log('MESH', this.mesh)
       this.mesh.scale.multiplyScalar(50);
+
+      // console.log('MESH', meshes)
+
       // this.addMultipleTrees();
     });
 
@@ -267,31 +351,52 @@ class TerrainEnvironment extends Component {
   };
 
   createVideoPlane = () => {
-    let video = document.getElementById("video");
-    let texture = new THREE.VideoTexture(video);
-    // texture.needsUpdate;
-    texture.needsUpdate = true;
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.format = THREE.RGBFormat;
-    texture.crossOrigin = "anonymous";
+    this.startVideo = document.createElement("video");
+    this.startVideo.src = StarFalling;
+    this.startVideo.load();
 
-    var imageObject = new THREE.Mesh(
-      new THREE.PlaneGeometry(500, 500),
-      new THREE.MeshBasicMaterial({ map: texture })
+    let videoImage = document.createElement("canvas");
+    videoImage.width = 480;
+    videoImage.height = 204;
+
+    this.videoImageContext = videoImage.getContext("2d");
+    // background color if no video present
+    this.videoImageContext.fillStyle = "#000000";
+    this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+
+    this.startVideoTexture = new THREE.Texture(videoImage);
+    this.startVideoTexture.minFilter = THREE.LinearFilter;
+    this.startVideoTexture.magFilter = THREE.LinearFilter;
+
+    let movieMaterial = new THREE.MeshBasicMaterial({
+      map: this.startVideoTexture,
+      overdraw: true,
+      side: THREE.DoubleSide
+    });
+    // the geometry on which the movie will be displayed;
+    // 		movie image will be scaled to fit these dimensions.
+    let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
+    let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
+    movieScreen.position.set(1000, 1500, 0);
+    this.scene.add(movieScreen);
+
+    let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500);
+    var wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true
+    });
+    let videoCollsionBoundary = new THREE.Mesh(
+      videoCollisionGeometry,
+      wireMaterial
     );
-    imageObject.position.set(0, 1300, 0);
-
-    this.scene.add(imageObject);
-
-    video.src = StarFalling;
-    video.load();
-    video.play();
+    videoCollsionBoundary.position.set(1000, 1500, 0);
+    videoCollsionBoundary.userData.videoClip = VideoName.STAR_FALLING;
+    this.scene.add(videoCollsionBoundary);
+    this.collidableMeshList.push(videoCollsionBoundary);
   };
 
   addMultipleTrees = () => {
     let noiseData = this.generateHeight(this.worldWidth, this.worldDepth);
-    console.log("DATA", noiseData);
     for (let x = 0; x < this.worldDepth; x++) {
       for (let y = 0; y < this.worldDepth; y++) {
         let index = y * this.worldDepth + x;
@@ -348,6 +453,69 @@ class TerrainEnvironment extends Component {
     );
     this.camera.position.set(100, 800, -1600);
     this.camera.lookAt(-100, 810, -800);
+
+    let cubeGeometry = new THREE.BoxGeometry(200, 200, 200, 1, 1, 1);
+    let wireMaterial = new THREE.MeshBasicMaterial({
+      // transparent: true
+    });
+    this.cameraCollisionBox = new THREE.Mesh(cubeGeometry, wireMaterial);
+    this.cameraCollisionBox.position.set(
+      this.camera.position.x,
+      this.camera.position.y,
+      this.camera.position.z
+    );
+
+    this.camera.add(this.cameraCollisionBox);
+    this.scene.add(this.cameraCollisionBox);
+  };
+  checkIfCameraIntersects = () => {
+    this.cameraCollisionBox.geometry.computeVertexNormals();
+    let originPoint = this.cameraCollisionBox.position.clone();
+    for (
+      let vertexIndex = 0;
+      vertexIndex < this.cameraCollisionBox.geometry.groups.length;
+      vertexIndex++
+    ) {
+      // let localVertex = this.cameraCollisionBox.geometry.vertices[vertexIndex].clone();
+      let localVertex = new THREE.Vector3();
+      localVertex.fromBufferAttribute(
+        this.cameraCollisionBox.geometry.index,
+        this.cameraCollisionBox.geometry.groups[vertexIndex].start
+      );
+      let globalVertex = localVertex.applyMatrix4(
+        this.cameraCollisionBox.matrix
+      );
+      let directionVector = globalVertex.sub(this.cameraCollisionBox.position);
+
+      let ray = new THREE.Raycaster(
+        originPoint,
+        directionVector.clone().normalize()
+      );
+      let collisionResults = ray.intersectObjects(this.collidableMeshList);
+      if (
+        collisionResults.length > 0 &&
+        collisionResults[0].distance < directionVector.length()
+      ) {
+        let object = collisionResults[0].object;
+        if (object.userData.videoClip) {
+          this.lastBoundaryTouched = object.userData.videoClip;
+        }
+        // console.log('OBJECT', object)
+        if (!this.state.isInVideoBox) {
+          this.setState({
+            isInVideoBox: true
+          });
+        }
+      } else {
+        if (this.state.isInVideoBox) {
+          setTimeout(() => {
+            this.setState({
+              isInVideoBox: false
+            });
+          }, 10000);
+        }
+      }
+    }
   };
 
   createTerrain = () => {
@@ -416,18 +584,31 @@ class TerrainEnvironment extends Component {
   };
 
   startAnimationLoop = () => {
-    this.controls.update(this.clock.getDelta());
-    // this.renderer.render(this.scene, this.camera);
-    this.frame
-      .update(this.clock.getDelta())
-      .updateNode(this.invertPass.material)
-      .updateNode(this.blurPass.material);
+    if (!this.state.pause) {
+      this.controls.update(this.clock.getDelta());
+      this.cameraCollisionBox.position.set(
+        this.camera.position.x,
+        this.camera.position.y,
+        this.camera.position.z
+      );
+      if (this.startVideo.readyState === this.startVideo.HAVE_ENOUGH_DATA) {
+        this.videoImageContext.drawImage(this.startVideo, 0, 0);
+        if (this.startVideoTexture) this.startVideoTexture.needsUpdate = true;
+      }
+      this.checkIfCameraIntersects();
+      // this.renderer.render(this.scene, this.camera);
+      this.frame
+        .update(this.clock.getDelta())
+        .updateNode(this.invertPass.material)
+        .updateNode(this.blurPass.material);
 
-    this.composer.render();
-    // The window.requestAnimationFrame() method tells the browser that you wish to perform
-    // an animation and requests that the browser call a specified function
-    // to update an animation before the next repaint
+      this.composer.render();
+      // The window.requestAnimationFrame() method tells the browser that you wish to perform
+      // an animation and requests that the browser call a specified function
+      // to update an animation before the next repaint
+    }
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
+
   };
 
   generateHeight(width, height) {
@@ -521,10 +702,12 @@ class TerrainEnvironment extends Component {
 
   addEventListeners = () => {
     window.addEventListener("resize", this.onWindowResize, false);
+    window.addEventListener("keyup", this.onKeyUp, false);
   };
 
   removeEventListeners = () => {
     window.removeEventListener("resize", this.onWindowResize);
+    window.removeEventListener("keyup", this.onKeyUp);
   };
   onWindowResize = () => {
     const width = this.mount.clientWidth;
@@ -537,8 +720,70 @@ class TerrainEnvironment extends Component {
     this.camera.updateProjectionMatrix();
   };
 
+  getVideoUrl = () => {
+    switch (this.lastBoundaryTouched) {
+      case VideoName.STAR_FALLING: {
+        return StarFalling;
+      }
+      default: {
+        return StarFalling;
+      }
+    }
+  };
+
+  onKeyUp = event => {
+    if (this.state.isInVideoBox && event.key === "p") {
+      switch (this.lastBoundaryTouched) {
+        case VideoName.STAR_FALLING: {
+          if (this.startVideo) {
+            this.setState({
+              showVideo: true,
+              pause: true
+            });
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  closeVideo = () => {
+    this.setState({
+      showVideo: false,
+      pause: false
+    });
+  };
+
+  hideLoadingPage = () => {
+    this.setState({
+      showSimulation: true
+    })
+  }
+
   render() {
-    return <div style={style} ref={ref => (this.mount = ref)} />;
+    return (
+      <React.Fragment>
+        <div style={style} ref={ref => (this.mount = ref)} />
+        <TextDisplayWrapper hidden={!this.state.isInVideoBox}>
+          <Text hidden={!this.state.showSimulation}> press p to play video</Text>
+        </TextDisplayWrapper>
+        <LoadingWrapper hidden={this.state.showSimulation}>
+          <VideoWrapper>
+            <Image src={Logo} />
+            <LoadingBarWrapper>
+              <LoadingBar show={!this.state.hasLoaded} loaded={this.state.loaded} total={this.state.total} />
+              <Text onClick={() => this.hideLoadingPage()}> click here to enter </Text>
+            </LoadingBarWrapper>
+          </VideoWrapper>
+        </LoadingWrapper>
+        <VideoModalWrapper hidden={!this.state.showVideo}>
+          <VideoWrapper>
+            <VideoPlayer videoUrl={StarFalling} />
+            <CloseText onClick={() => this.closeVideo()}> Close </CloseText>
+          </VideoWrapper>
+        </VideoModalWrapper>
+      </React.Fragment>
+    );
   }
 }
 

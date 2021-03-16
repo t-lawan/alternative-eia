@@ -10,7 +10,7 @@ const NavbarWrapper = styled.div`
     /* color: black; */
     position: absolute;
     padding: 2rem;
-    z-index: 2000;
+    z-index: 500;
     /* mix-blend-mode: multiply; */
 
 
@@ -33,7 +33,7 @@ const Navbar = (props) => {
         <NavbarWrapper>
             <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.HOME}> Home</StyledNavLink> 
             <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.EIA}> EIA</StyledNavLink> 
-            <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.STORIES}> Stories</StyledNavLink> 
+            {/* <StyledNavLink invert={props.invert} activeStyle={{textDecoration: 'underline'}} to={PageUrls.STORIES}> Stories</StyledNavLink>  */}
         </NavbarWrapper>
     );
   };

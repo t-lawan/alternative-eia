@@ -15,3 +15,8 @@ export const PageUrls = {
     STORIES: '/stories'
 
 }
+
+export const VideoName = {
+    STAR_FALLING: 'STAR_FALLING',
+    NONE: 'NONE'
+}

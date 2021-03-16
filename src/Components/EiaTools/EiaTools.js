@@ -38,18 +38,6 @@ const EiaTools = () => {
 
   return (
     <EiaToolsWrapper>
-      <EiaSideNavbarWrapper>
-        {/* <EiaSideNavbarLink onClick={() => setToolType(EiaToolType.DATA_GATHER)}>
-          {" "}
-          Gather Data{" "}
-        </EiaSideNavbarLink>
-        <EiaSideNavbarLink
-          onClick={() => setToolType(EiaToolType.VISUALISE_DATA)}
-        >
-          {" "}
-          Visualise Data{" "}
-        </EiaSideNavbarLink> */}
-      </EiaSideNavbarWrapper>
       <ToolsWrapper>
         <ToolWrapper isSelected={toolType === EiaToolType.DATA_GATHER}>
           {/* <EiaSideNavbarText >
