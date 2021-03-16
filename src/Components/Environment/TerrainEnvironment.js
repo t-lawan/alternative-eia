@@ -60,7 +60,7 @@ const VideoModalWrapper = styled.div`
   height: 100%;
   width: 100%;
   z-index: 50;
-  background: orange;
+  background: rgba(255,196,89, 0.5);
 `;
 
 const VideoWrapper = styled.div`
@@ -72,7 +72,7 @@ const VideoWrapper = styled.div`
   height: 100%;
 `;
 const Text = styled.h1`
-  color: orange;
+  color:rgb(255,196,89);
 `;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
@@ -351,39 +351,46 @@ class TerrainEnvironment extends Component {
   };
 
   createVideoPlane = () => {
-    this.startVideo = document.createElement("video");
-    this.startVideo.src = StarFalling;
-    this.startVideo.load();
+    // this.startVideo = document.createElement("video");
+    // this.startVideo.src = StarFalling;
+    // this.startVideo.load();
 
-    let videoImage = document.createElement("canvas");
-    videoImage.width = 480;
-    videoImage.height = 204;
+    // let videoImage = document.createElement("canvas");
+    // videoImage.width = 480;
+    // videoImage.height = 204;
 
-    this.videoImageContext = videoImage.getContext("2d");
-    // background color if no video present
-    this.videoImageContext.fillStyle = "#000000";
-    this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+    // this.videoImageContext = videoImage.getContext("2d");
+    // // background color if no video present
+    // this.videoImageContext.fillStyle = "#000000";
+    // this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
 
-    this.startVideoTexture = new THREE.Texture(videoImage);
-    this.startVideoTexture.minFilter = THREE.LinearFilter;
-    this.startVideoTexture.magFilter = THREE.LinearFilter;
+    // this.startVideoTexture = new THREE.Texture(videoImage);
+    // this.startVideoTexture.minFilter = THREE.LinearFilter;
+    // this.startVideoTexture.magFilter = THREE.LinearFilter;
 
-    let movieMaterial = new THREE.MeshBasicMaterial({
-      map: this.startVideoTexture,
-      overdraw: true,
-      side: THREE.DoubleSide
-    });
+    // let movieMaterial = new THREE.MeshBasicMaterial({
+    //   map: this.startVideoTexture,
+    //   overdraw: true,
+    //   side: THREE.DoubleSide
+    // });
     // the geometry on which the movie will be displayed;
     // 		movie image will be scaled to fit these dimensions.
-    let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
-    let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
-    movieScreen.position.set(1000, 1500, 0);
-    this.scene.add(movieScreen);
+    // let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
+    // let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
+    // movieScreen.position.set(1000, 1500, 0);
+    // this.scene.add(movieScreen);
+
+    const light = new THREE.PointLight( 0xffffff, 3500, 0 );
+    light.position.set( 1000, 1500, 0 );
+    this.scene.add( light );
+
+    // const pointLightHelper = new THREE.PointLightHelper( light, 100 );
+    // this.scene.add( pointLightHelper );
 
     let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500);
     var wireMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
-      wireframe: true
+      wireframe: true,
     });
     let videoCollsionBoundary = new THREE.Mesh(
       videoCollisionGeometry,
@@ -456,7 +463,7 @@ class TerrainEnvironment extends Component {
 
     let cubeGeometry = new THREE.BoxGeometry(200, 200, 200, 1, 1, 1);
     let wireMaterial = new THREE.MeshBasicMaterial({
-      // transparent: true
+      transparent: true
     });
     this.cameraCollisionBox = new THREE.Mesh(cubeGeometry, wireMaterial);
     this.cameraCollisionBox.position.set(
@@ -591,10 +598,10 @@ class TerrainEnvironment extends Component {
         this.camera.position.y,
         this.camera.position.z
       );
-      if (this.startVideo.readyState === this.startVideo.HAVE_ENOUGH_DATA) {
-        this.videoImageContext.drawImage(this.startVideo, 0, 0);
-        if (this.startVideoTexture) this.startVideoTexture.needsUpdate = true;
-      }
+      // if (this.startVideo.readyState === this.startVideo.HAVE_ENOUGH_DATA) {
+      //   this.videoImageContext.drawImage(this.startVideo, 0, 0);
+      //   if (this.startVideoTexture) this.startVideoTexture.needsUpdate = true;
+      // }
       this.checkIfCameraIntersects();
       // this.renderer.render(this.scene, this.camera);
       this.frame
@@ -772,7 +779,7 @@ class TerrainEnvironment extends Component {
             <Image src={Logo} />
             <LoadingBarWrapper>
               <LoadingBar show={!this.state.hasLoaded} loaded={this.state.loaded} total={this.state.total} />
-              <Text onClick={() => this.hideLoadingPage()}> click here to enter </Text>
+              <Text hidden={!this.state.hasLoaded} onClick={() => this.hideLoadingPage()}> click here to enter </Text>
             </LoadingBarWrapper>
           </VideoWrapper>
         </LoadingWrapper>
