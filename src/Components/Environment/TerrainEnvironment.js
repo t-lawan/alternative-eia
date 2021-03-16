@@ -391,8 +391,9 @@ class TerrainEnvironment extends Component {
     let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500, 5, 5, 5);
     var wireMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
-      wireframe: true,
-      transparent: true
+      // wireframe: false,
+      opacity: 0,
+      
     });
     let videoCollsionBoundary = new THREE.Mesh(
       videoCollisionGeometry,
@@ -400,6 +401,7 @@ class TerrainEnvironment extends Component {
     );
     videoCollsionBoundary.position.set(0, 1500, 0);
     videoCollsionBoundary.userData.videoClip = VideoName.STAR_FALLING;
+    videoCollsionBoundary.visible = false;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
   };
