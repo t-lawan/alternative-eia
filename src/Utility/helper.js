@@ -18,5 +18,9 @@ export const PageUrls = {
 
 export const VideoName = {
     STAR_FALLING: 'STAR_FALLING',
+    VIDEO_ONE: 'VIDEO_ONE',
+    VIDEO_TWO: 'VIDEO_TWO',
+    VIDEO_THREE: 'VIDEO_THREE',
+    VIDEO_FOUR: 'VIDEO_FOUR',
     NONE: 'NONE'
 }

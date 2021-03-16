@@ -6,6 +6,7 @@ import { ImprovedNoise } from "three/examples/jsm/math/ImprovedNoise";
 import { Colours } from "../Global/global.styles";
 import TreeG from "../../Assets/Models/Tree.glb";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 import BatFlying from "../../Assets/Audio/BAT_FLYING.mp3";
 import BatSounds from "../../Assets/Audio/BAT_SOUNDS.mp3";
@@ -13,8 +14,6 @@ import TrainOne from "../../Assets/Audio/TRAIN_ONE.mp3";
 import TrainTwo from "../../Assets/Audio/TRAIN_TWO.mp3";
 
 import StarFalling from "../../Assets/Videos/star-falling.mp4";
-
-
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { NodePass } from "three/examples/jsm/nodes/postprocessing/NodePass";
@@ -23,10 +22,9 @@ import { VideoName } from "../../Utility/helper";
 import styled from "styled-components";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingBar from "../Loading/LoadingBar/LoadingBar";
-import Logo from '../../Assets/Images/LOGO.png'
-
-import Font from '../../Assets/Fonts/Grotesk_Light_Extended.json'
-
+import Logo from "../../Assets/Images/LOGO.png";
+import Font from "../../Assets/Fonts/Grotesk_Light_Extended.json";
+import Bat from "../../Assets/Models/bat.obj";
 
 const TextDisplayWrapper = styled.div`
   position: fixed;
@@ -50,9 +48,8 @@ const LoadingWrapper = styled.div`
 const LoadingFlexWrapper = styled.div``;
 
 const Image = styled.img`
-/* width: 20%; */
-
-`
+  /* width: 20%; */
+`;
 
 const LoadingBarWrapper = styled.div`
   bottom: 10%;
@@ -68,7 +65,7 @@ const VideoModalWrapper = styled.div`
   height: 100%;
   width: 100%;
   z-index: 50;
-  background: rgba(209,114,39, 0.5);
+  background: rgba(209, 114, 39, 0.5);
 `;
 
 const VideoWrapper = styled.div`
@@ -80,7 +77,7 @@ const VideoWrapper = styled.div`
   height: 100%;
 `;
 const Text = styled.h1`
-  color:rgb(209,114,39);
+  color: rgb(209, 114, 39);
 `;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
@@ -96,7 +93,9 @@ class TerrainEnvironment extends Component {
   terrainSize = 7500;
   nodePost;
   frame;
+  mouse;
   lastBoundaryTouched = VideoName.NONE;
+  isHovering = false;
   collidableMeshList = [];
   state = {
     loaded: 0,
@@ -107,6 +106,7 @@ class TerrainEnvironment extends Component {
     showVideo: false,
     pause: false
   };
+  clickableObjects = [];
 
   componentDidMount() {
     this.init();
@@ -126,6 +126,7 @@ class TerrainEnvironment extends Component {
 
   init = () => {
     this.setupScene();
+    this.mouse = new THREE.Vector2();
     this.setupCamera();
     this.createTerrain();
     this.addLights();
@@ -133,10 +134,11 @@ class TerrainEnvironment extends Component {
     this.setupRenderer();
     this.setupPostProcessing();
     this.setupControl();
+    this.createRayCaster();
     // this.setupGrid();
+    this.loadBat();
     this.createAudioListener();
     this.loadAudio();
-    this.createVideoPlane();
     this.addTree();
     this.clock = new THREE.Clock();
   };
@@ -227,7 +229,11 @@ class TerrainEnvironment extends Component {
 
   loadFinished = () => {
     this.addMultipleTrees();
-    this.addText()
+    this.createVideoOneObject();
+    this.createVideoTwoObject();
+    this.createVideoThreeObject()
+
+    // this.addText()
     this.setState({
       loaded: 0,
       total: 1,
@@ -242,33 +248,49 @@ class TerrainEnvironment extends Component {
     this.camera.add(this.listener);
   };
 
-  createFont  = () => {
+  createFont = () => {
     const loader = new THREE.FontLoader(this.manager);
-    this.font = loader.parse(Font) 
-  }
+    this.font = loader.parse(Font);
+  };
 
   addText = () => {
-    if(this.font){
+    if (this.font) {
+      let textInfo = "This is text";
       var geometry = new THREE.TextBufferGeometry(textInfo, {
         font: this.font,
         size: 6,
         height: 1,
-        curveSegments: 30,
+        curveSegments: 30
       });
 
       let material = new THREE.MeshPhongMaterial({
-        color: new THREE.Color(OxD17227),
-        emissive: new THREE.Color(OxD17227),
+        color: 0xd17227,
+        emissive: 0xd17227,
         emissiveIntensity: 1,
         reflectivity: 0,
         shininess: 0,
-        specular: new THREE.Color('black')
+        specular: new THREE.Color("black")
       });
       let text = new THREE.Mesh(geometry, material);
-      text.position.set(0, 1500, 0)
+      text.position.set(0, 1500, 0);
       this.scene.add(text);
     }
-  }
+  };
+
+  loadBat = () => {
+    let objLoader = new OBJLoader(this.manager);
+    objLoader.load(Bat, obj => {
+      this.bat = obj;
+      this.bat.children[0].scale.multiplyScalar(1);
+      this.bat.children[0].material.emissive.r = 209;
+      this.bat.children[0].material.emissive.g = 114;
+      this.bat.children[0].material.emissive.b = 39;
+      this.bat.children[0].material.emissiveIntensity = 0;
+      this.bat.children[0].material.fog = false;
+      this.bat.children[0].frustumCulled = false;
+      console.log("BAT", this.bat.children[0]);
+    });
+  };
 
   loadAudio = () => {
     let musicLoader = new THREE.AudioLoader(this.manager);
@@ -309,9 +331,9 @@ class TerrainEnvironment extends Component {
   createTrainSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: "orange" });
+    let material = new THREE.MeshPhongMaterial({ color: "orange" , opacity: 0});
     let mesh = new THREE.Mesh(sphere, material);
-    mesh.position.set(0, 1500, 0);
+    mesh.position.set(500, 1500, 1000);
     this.scene.add(mesh);
     mesh.add(this.trainSound);
     this.trainSound.setRefDistance(20);
@@ -321,7 +343,7 @@ class TerrainEnvironment extends Component {
   createMusicSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: 0xff2200 });
+    let material = new THREE.MeshPhongMaterial({ color: 0xff2200, opacity: 0 });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(4000, 1500, 0);
     this.scene.add(mesh);
@@ -333,7 +355,7 @@ class TerrainEnvironment extends Component {
   createBatSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: "yellow" });
+    let material = new THREE.MeshPhongMaterial({ color: "yellow", opacity: 0 });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, 3000);
     this.scene.add(mesh);
@@ -345,7 +367,7 @@ class TerrainEnvironment extends Component {
   createBatFlyingSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: "yellow" });
+    let material = new THREE.MeshPhongMaterial({ color: "yellow" , opacity: 0});
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, -2500);
     this.scene.add(mesh);
@@ -387,52 +409,76 @@ class TerrainEnvironment extends Component {
     // mesh.visible = true;
   };
 
-  createVideoPlane = () => {
-    this.startVideo = document.createElement("video");
-    this.startVideo.src = StarFalling;
-    this.startVideo.load();
-
-    let videoImage = document.createElement("canvas");
-    videoImage.width = 480;
-    videoImage.height = 204;
-
-    this.videoImageContext = videoImage.getContext("2d");
-    // background color if no video present
-    this.videoImageContext.fillStyle = "#000000";
-    this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
-
-    this.startVideoTexture = new THREE.Texture(videoImage);
-    this.startVideoTexture.minFilter = THREE.LinearFilter;
-    this.startVideoTexture.magFilter = THREE.LinearFilter;
-
-    let movieMaterial = new THREE.MeshBasicMaterial({
-      map: this.startVideoTexture,
-      overdraw: true,
-      side: THREE.DoubleSide
-    });
-    // the geometry on which the movie will be displayed;
-    // 		movie image will be scaled to fit these dimensions.
-    let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
-    let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
-    movieScreen.position.set(0, 1500, 0);
-    this.scene.add(movieScreen);
-
-    let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500, 5, 5, 5);
+  createVideoOneObject = () => {
+    let videoCollisionGeometry = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
     var wireMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
-      // wireframe: false,
-      opacity: 0,
-      
+      wireframe: true,
+      opacity: 1
     });
     let videoCollsionBoundary = new THREE.Mesh(
       videoCollisionGeometry,
       wireMaterial
     );
     videoCollsionBoundary.position.set(0, 1500, 0);
-    videoCollsionBoundary.userData.videoClip = VideoName.STAR_FALLING;
+    videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_ONE;
     videoCollsionBoundary.visible = false;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
+
+    let videoOneBat = this.bat.clone();
+    videoOneBat.position.set(0, 1500, 0);
+    videoOneBat.userData.collisionBoundary = videoCollsionBoundary;
+    this.clickableObjects.push(videoOneBat);
+    this.scene.add(videoOneBat);
+  };
+
+  createVideoTwoObject = () => {
+    let videoCollisionGeometry = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
+    var wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      opacity: 1
+    });
+    let videoCollsionBoundary = new THREE.Mesh(
+      videoCollisionGeometry,
+      wireMaterial
+    );
+    videoCollsionBoundary.position.set(500, 1000, 0);
+    videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_TWO;
+    videoCollsionBoundary.visible = false;
+    this.scene.add(videoCollsionBoundary);
+    this.collidableMeshList.push(videoCollsionBoundary);
+
+    let videoTwoBat = this.bat.clone();
+    videoTwoBat.position.set(500, 1000, 0);
+    videoTwoBat.userData.collisionBoundary = videoCollsionBoundary;
+    this.clickableObjects.push(videoTwoBat);
+    this.scene.add(videoTwoBat);
+  };
+
+  createVideoThreeObject = () => {
+    let videoCollisionGeometry = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
+    var wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      opacity: 1
+    });
+    let videoCollsionBoundary = new THREE.Mesh(
+      videoCollisionGeometry,
+      wireMaterial
+    );
+    videoCollsionBoundary.position.set(-500, -1000, 0);
+    videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_THREE;
+    videoCollsionBoundary.visible = false;
+    this.scene.add(videoCollsionBoundary);
+    this.collidableMeshList.push(videoCollsionBoundary);
+
+    let videoThreeBat = this.bat.clone();
+    videoThreeBat.position.set(-500, -1000, 0);
+    videoThreeBat.userData.collisionBoundary = videoCollsionBoundary;
+    this.clickableObjects.push(videoThreeBat);
+    this.scene.add(videoThreeBat);
   };
 
   addMultipleTrees = () => {
@@ -489,12 +535,12 @@ class TerrainEnvironment extends Component {
       50,
       this.width / this.height,
       1,
-      2000
+      3000
     );
     this.camera.position.set(100, 800, -1600);
     // this.camera.lookAt(-100, 810, -800);
     this.camera.lookAt(0, 1500, 0);
-    
+
     let cubeGeometry = new THREE.BoxGeometry(200, 200, 200, 1, 1, 1);
     let wireMaterial = new THREE.MeshBasicMaterial({
       transparent: true
@@ -636,7 +682,7 @@ class TerrainEnvironment extends Component {
       //   this.videoImageContext.drawImage(this.startVideo, 0, 0);
       //   if (this.startVideoTexture) this.startVideoTexture.needsUpdate = true;
       // }
-      this.checkIfCameraIntersects();
+      // this.checkIfCameraIntersects();
       // this.renderer.render(this.scene, this.camera);
       this.frame
         .update(this.clock.getDelta())
@@ -649,7 +695,6 @@ class TerrainEnvironment extends Component {
       // to update an animation before the next repaint
     }
     this.requestID = window.requestAnimationFrame(this.startAnimationLoop);
-
   };
 
   generateHeight(width, height) {
@@ -742,11 +787,13 @@ class TerrainEnvironment extends Component {
   }
 
   addEventListeners = () => {
+    window.addEventListener("mousemove", this.onMouseMove, false);
     window.addEventListener("resize", this.onWindowResize, false);
     window.addEventListener("keyup", this.onKeyUp, false);
   };
 
   removeEventListeners = () => {
+    window.removeEventListener("mousemove", this.onMouseMove);
     window.removeEventListener("resize", this.onWindowResize);
     window.removeEventListener("keyup", this.onKeyUp);
   };
@@ -761,28 +808,94 @@ class TerrainEnvironment extends Component {
     this.camera.updateProjectionMatrix();
   };
 
-  getVideoUrl = () => {
-    switch (this.lastBoundaryTouched) {
-      case VideoName.STAR_FALLING: {
-        return StarFalling;
-      }
-      default: {
-        return StarFalling;
+
+
+  setMouse = event => {
+    this.mouse.x = (event.clientX / this.mount.clientWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / this.mount.clientHeight) * 2 + 1;
+  };
+
+  createRayCaster = () => {
+    this.raycaster = new THREE.Raycaster();
+  };
+
+  onKeyUp = event => {
+    console.log("KEY", event.key);
+    console.log("box", this.state.isInVideoBox);
+    if (this.state.isInVideoBox && event.key === "p") {
+      switch (this.lastBoundaryTouched) {
+        case VideoName.STAR_FALLING: {
+          this.setState({
+            showVideo: true,
+            pause: true
+          });
+          break;
+        }
+        case VideoName.VIDEO_ONE: {
+          this.setState({
+            showVideo: true,
+            pause: true
+          });
+          break;
+        }
+        case VideoName.VIDEO_TWO: {
+          this.setState({
+            showVideo: true,
+            pause: true
+          });
+          break;
+        }
+        case VideoName.VIDEO_THREE: {
+          this.setState({
+            showVideo: true,
+            pause: true
+          });
+          break;
+        }
+        case VideoName.VIDEO_FOUR: {
+          this.setState({
+            showVideo: true,
+            pause: true
+          });
+          break;
+        }
       }
     }
   };
 
-  onKeyUp = event => {
-    if (this.state.isInVideoBox && event.key === "p") {
-      switch (this.lastBoundaryTouched) {
-        case VideoName.STAR_FALLING: {
-          if (this.startVideo) {
+  onMouseMove = event => {
+    if (!this.state.pause) {
+      event.preventDefault();
+      this.setMouse(event);
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      let boundingBoxes = this.clickableObjects.map(object => {
+        return object.userData.collisionBoundary;
+      });
+      this.intersects = this.raycaster.intersectObjects(boundingBoxes, true);
+      if (this.intersects.length > 0) {
+        if (!this.isHovering) {
+          this.isHovering = true;
+          // let index = boundingBoxes.findIndex((box) => {
+          //   return box.
+          // })
+          let obj = this.intersects[0].object;
+          if (obj.userData.videoClip) {
+            this.lastBoundaryTouched = obj.userData.videoClip;
+          }
+          if (!this.state.isInVideoBox) {
             this.setState({
-              showVideo: true,
-              pause: true
+              isInVideoBox: true
             });
           }
-          break;
+        }
+      } else {
+        if (this.isHovering) {
+          this.isHovering = false;
+          if (this.state.isInVideoBox) {
+            this.setState({
+              isInVideoBox: false
+            });
+          }
         }
       }
     }
@@ -798,28 +911,41 @@ class TerrainEnvironment extends Component {
   hideLoadingPage = () => {
     this.setState({
       showSimulation: true
-    })
-  }
+    });
+  };
 
   render() {
     return (
       <React.Fragment>
         <div style={style} ref={ref => (this.mount = ref)} />
         <TextDisplayWrapper hidden={!this.state.isInVideoBox}>
-          <Text hidden={!this.state.showSimulation}> press p to play video</Text>
+          <Text hidden={!this.state.showSimulation}>
+            {" "}
+            press p to play video
+          </Text>
         </TextDisplayWrapper>
         <LoadingWrapper hidden={this.state.showSimulation}>
           <VideoWrapper>
             <Image src={Logo} />
             <LoadingBarWrapper>
-              <LoadingBar show={!this.state.hasLoaded} loaded={this.state.loaded} total={this.state.total} />
-              <Text hidden={!this.state.hasLoaded} onClick={() => this.hideLoadingPage()}> click here to enter </Text>
+              <LoadingBar
+                show={!this.state.hasLoaded}
+                loaded={this.state.loaded}
+                total={this.state.total}
+              />
+              <Text
+                hidden={!this.state.hasLoaded}
+                onClick={() => this.hideLoadingPage()}
+              >
+                {" "}
+                click here to enter{" "}
+              </Text>
             </LoadingBarWrapper>
           </VideoWrapper>
         </LoadingWrapper>
         <VideoModalWrapper hidden={!this.state.showVideo}>
           <VideoWrapper>
-            <VideoPlayer videoUrl={StarFalling} />
+            <VideoPlayer videoUrl={this.lastBoundaryTouched} />
             <CloseText onClick={() => this.closeVideo()}> Close </CloseText>
           </VideoWrapper>
         </VideoModalWrapper>

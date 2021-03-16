@@ -5,9 +5,10 @@ import VIDEO_ONE from '../../Assets/Videos/VIDEO_ONE.mp4'
 import VIDEO_TWO from '../../Assets/Videos/VIDEO_TWO.mp4'
 import VIDEO_THREE from '../../Assets/Videos/VIDEO_THREE.mp4'
 import VIDEO_FOUR from '../../Assets/Videos/VIDEO_FOUR.mp4'
+import { VideoName } from "../../Utility/helper";
 
 const VideoPlayerWrapper = styled.div`
-  width: 70%;
+  width: 100%;
     /* width: ${props => (props.fullScreen ? `100vw !important` : "auto")}; */
 `
 
@@ -21,6 +22,26 @@ class VideoPlayer extends React.Component {
     VIDEO_THREE,
     VIDEO_FOUR
   ]
+
+  getVideoUrl = (vidName) => {
+    switch (vidName) {
+      case VideoName.VIDEO_ONE: {
+        return VIDEO_ONE;
+      }
+      case VideoName.VIDEO_TWO: {
+        return VIDEO_TWO;
+      }
+      case VideoName.VIDEO_THREE: {
+        return VIDEO_THREE;
+      }
+      case VideoName.VIDEO_FOUR: {
+        return VIDEO_FOUR;
+      }
+      default: {
+        return VIDEO_ONE;
+      }
+    }
+  };
 
   videoEnded = () => {
     let index = this.state.index;
@@ -37,15 +58,14 @@ class VideoPlayer extends React.Component {
     return (
       <VideoPlayerWrapper>
         <ReactPlayer
-          url={this.videos[this.state.index]}
+          url={this.getVideoUrl(this.props.videoUrl)}
           controls={true}
           style={{ height: "100vh" }}
           height={"100%"}
           width={"100%"}
           playing={this.props.autoPlay}
-          muted={false}
+          muted={true}
           loop={false}
-          onEnded={() => this.videoEnded()}
         />
       </VideoPlayerWrapper>
     )
