@@ -25,7 +25,7 @@ import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingBar from "../Loading/LoadingBar/LoadingBar";
 import Logo from '../../Assets/Images/LOGO.png'
 
-
+import Font from '../../Assets/Fonts/Grotesk_Light_Extended.json'
 
 
 const TextDisplayWrapper = styled.div`
@@ -227,6 +227,7 @@ class TerrainEnvironment extends Component {
 
   loadFinished = () => {
     this.addMultipleTrees();
+    this.addText()
     this.setState({
       loaded: 0,
       total: 1,
@@ -240,6 +241,34 @@ class TerrainEnvironment extends Component {
     this.listener = new THREE.AudioListener();
     this.camera.add(this.listener);
   };
+
+  createFont  = () => {
+    const loader = new THREE.FontLoader(this.manager);
+    this.font = loader.parse(Font) 
+  }
+
+  addText = () => {
+    if(this.font){
+      var geometry = new THREE.TextBufferGeometry(textInfo, {
+        font: this.font,
+        size: 6,
+        height: 1,
+        curveSegments: 30,
+      });
+
+      let material = new THREE.MeshPhongMaterial({
+        color: new THREE.Color(OxD17227),
+        emissive: new THREE.Color(OxD17227),
+        emissiveIntensity: 1,
+        reflectivity: 0,
+        shininess: 0,
+        specular: new THREE.Color('black')
+      });
+      let text = new THREE.Mesh(geometry, material);
+      text.position.set(0, 1500, 0)
+      this.scene.add(text);
+    }
+  }
 
   loadAudio = () => {
     let musicLoader = new THREE.AudioLoader(this.manager);
