@@ -392,6 +392,7 @@ class TerrainEnvironment extends Component {
     var wireMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
       wireframe: true,
+      transparent: true
     });
     let videoCollsionBoundary = new THREE.Mesh(
       videoCollisionGeometry,
