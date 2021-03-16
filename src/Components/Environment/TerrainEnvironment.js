@@ -25,6 +25,7 @@ import LoadingBar from "../Loading/LoadingBar/LoadingBar";
 import Logo from "../../Assets/Images/LOGO.png";
 import Font from "../../Assets/Fonts/Grotesk_Light_Extended.json";
 import Bat from "../../Assets/Models/bat.obj";
+import Cross from '../../Assets/Images/cross.png'
 
 const TextDisplayWrapper = styled.div`
   position: fixed;
@@ -34,7 +35,11 @@ const TextDisplayWrapper = styled.div`
   height: 10%;
 `;
 const CloseText = styled.h2`
+  position: fixed;
+  top: 0;
+  right: 0;
   text-decoration: underline;
+  padding: 1rem;
 `;
 const LoadingWrapper = styled.div`
   position: fixed;
@@ -68,6 +73,17 @@ const VideoModalWrapper = styled.div`
   background: rgba(209, 114, 39, 0.5);
 `;
 
+const ImageIcon = styled.img`
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 1000;
+  :hover {
+    cursor: pointer;
+  }
+`
+
 const VideoWrapper = styled.div`
   width: 100%;
   display: flex;
@@ -78,6 +94,8 @@ const VideoWrapper = styled.div`
 `;
 const Text = styled.h1`
   color: rgb(209, 114, 39);
+  font-style: italic;
+  font-weight: bold;
 `;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
@@ -808,8 +826,6 @@ class TerrainEnvironment extends Component {
     this.camera.updateProjectionMatrix();
   };
 
-
-
   setMouse = event => {
     this.mouse.x = (event.clientX / this.mount.clientWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / this.mount.clientHeight) * 2 + 1;
@@ -945,8 +961,9 @@ class TerrainEnvironment extends Component {
         </LoadingWrapper>
         <VideoModalWrapper hidden={!this.state.showVideo}>
           <VideoWrapper>
+            <ImageIcon onClick={() => this.closeVideo()} src={Cross} /> 
+
             <VideoPlayer videoUrl={this.lastBoundaryTouched} />
-            <CloseText onClick={() => this.closeVideo()}> Close </CloseText>
           </VideoWrapper>
         </VideoModalWrapper>
       </React.Fragment>
