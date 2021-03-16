@@ -6,20 +6,28 @@ import { ImprovedNoise } from "three/examples/jsm/math/ImprovedNoise";
 import { Colours } from "../Global/global.styles";
 import TreeG from "../../Assets/Models/Tree.glb";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+
 import BatFlying from "../../Assets/Audio/BAT_FLYING.mp3";
 import BatSounds from "../../Assets/Audio/BAT_SOUNDS.mp3";
 import TrainOne from "../../Assets/Audio/TRAIN_ONE.mp3";
 import TrainTwo from "../../Assets/Audio/TRAIN_TWO.mp3";
+
+import StarFalling from "../../Assets/Videos/star-falling.mp4";
+
+
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { NodePass } from "three/examples/jsm/nodes/postprocessing/NodePass";
 import * as Nodes from "three/examples/jsm/nodes/Nodes";
-import StarFalling from "../../Assets/Videos/star-falling.mp4";
 import { VideoName } from "../../Utility/helper";
 import styled from "styled-components";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingBar from "../Loading/LoadingBar/LoadingBar";
 import Logo from '../../Assets/Images/HS2Logo.png'
+
+
+
+
 const TextDisplayWrapper = styled.div`
   position: fixed;
   bottom: 10%;
@@ -351,41 +359,34 @@ class TerrainEnvironment extends Component {
   };
 
   createVideoPlane = () => {
-    // this.startVideo = document.createElement("video");
-    // this.startVideo.src = StarFalling;
-    // this.startVideo.load();
+    this.startVideo = document.createElement("video");
+    this.startVideo.src = StarFalling;
+    this.startVideo.load();
 
-    // let videoImage = document.createElement("canvas");
-    // videoImage.width = 480;
-    // videoImage.height = 204;
+    let videoImage = document.createElement("canvas");
+    videoImage.width = 480;
+    videoImage.height = 204;
 
-    // this.videoImageContext = videoImage.getContext("2d");
-    // // background color if no video present
-    // this.videoImageContext.fillStyle = "#000000";
-    // this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+    this.videoImageContext = videoImage.getContext("2d");
+    // background color if no video present
+    this.videoImageContext.fillStyle = "#000000";
+    this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
 
-    // this.startVideoTexture = new THREE.Texture(videoImage);
-    // this.startVideoTexture.minFilter = THREE.LinearFilter;
-    // this.startVideoTexture.magFilter = THREE.LinearFilter;
+    this.startVideoTexture = new THREE.Texture(videoImage);
+    this.startVideoTexture.minFilter = THREE.LinearFilter;
+    this.startVideoTexture.magFilter = THREE.LinearFilter;
 
-    // let movieMaterial = new THREE.MeshBasicMaterial({
-    //   map: this.startVideoTexture,
-    //   overdraw: true,
-    //   side: THREE.DoubleSide
-    // });
+    let movieMaterial = new THREE.MeshBasicMaterial({
+      map: this.startVideoTexture,
+      overdraw: true,
+      side: THREE.DoubleSide
+    });
     // the geometry on which the movie will be displayed;
     // 		movie image will be scaled to fit these dimensions.
-    // let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
-    // let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
-    // movieScreen.position.set(1000, 1500, 0);
-    // this.scene.add(movieScreen);
-
-    const light = new THREE.PointLight( 0xffffff, 3500, 0 );
-    light.position.set( 1000, 1500, 0 );
-    this.scene.add( light );
-
-    // const pointLightHelper = new THREE.PointLightHelper( light, 100 );
-    // this.scene.add( pointLightHelper );
+    let movieGeometry = new THREE.PlaneGeometry(240, 100, 4, 4);
+    let movieScreen = new THREE.Mesh(movieGeometry, movieMaterial);
+    movieScreen.position.set(0, 1500, 0);
+    this.scene.add(movieScreen);
 
     let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500);
     var wireMaterial = new THREE.MeshBasicMaterial({
@@ -396,7 +397,7 @@ class TerrainEnvironment extends Component {
       videoCollisionGeometry,
       wireMaterial
     );
-    videoCollsionBoundary.position.set(1000, 1500, 0);
+    videoCollsionBoundary.position.set(0, 1500, 0);
     videoCollsionBoundary.userData.videoClip = VideoName.STAR_FALLING;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
@@ -459,8 +460,9 @@ class TerrainEnvironment extends Component {
       2000
     );
     this.camera.position.set(100, 800, -1600);
-    this.camera.lookAt(-100, 810, -800);
-
+    // this.camera.lookAt(-100, 810, -800);
+    this.camera.lookAt(0, 1500, 0);
+    
     let cubeGeometry = new THREE.BoxGeometry(200, 200, 200, 1, 1, 1);
     let wireMaterial = new THREE.MeshBasicMaterial({
       transparent: true
