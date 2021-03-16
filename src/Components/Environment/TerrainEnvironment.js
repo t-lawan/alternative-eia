@@ -388,7 +388,7 @@ class TerrainEnvironment extends Component {
     movieScreen.position.set(0, 1500, 0);
     this.scene.add(movieScreen);
 
-    let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500);
+    let videoCollisionGeometry = new THREE.BoxGeometry(500, 500, 500, 5, 5, 5);
     var wireMaterial = new THREE.MeshBasicMaterial({
       color: 0xff0000,
       wireframe: true,
