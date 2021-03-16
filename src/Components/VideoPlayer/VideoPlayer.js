@@ -43,6 +43,26 @@ class VideoPlayer extends React.Component {
     }
   };
 
+  playSound = (vidName) => {
+    switch (vidName) {
+      case VideoName.VIDEO_ONE: {
+        return false;
+      }
+      case VideoName.VIDEO_TWO: {
+        return true;
+      }
+      case VideoName.VIDEO_THREE: {
+        return false
+      }
+      case VideoName.VIDEO_FOUR: {
+        return true;
+      }
+      default: {
+        return false;
+      }
+    }
+  };
+
   videoEnded = () => {
     let index = this.state.index;
     index++;
@@ -64,7 +84,7 @@ class VideoPlayer extends React.Component {
           height={"100%"}
           width={"100%"}
           playing={this.props.autoPlay}
-          muted={true}
+          muted={this.playSound(this.props.videoUrl)}
           loop={false}
         />
       </VideoPlayerWrapper>
