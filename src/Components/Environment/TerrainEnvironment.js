@@ -371,7 +371,7 @@ class TerrainEnvironment extends Component {
     mesh.position.set(500, 1500, 1000);
     this.scene.add(mesh);
     mesh.add(this.trainSound);
-    this.trainSound.setRefDistance(20);
+    this.trainSound.setRefDistance(30);
     this.trainSound.play();
   };
 
@@ -383,7 +383,7 @@ class TerrainEnvironment extends Component {
     mesh.position.set(4000, 1500, 0);
     this.scene.add(mesh);
     mesh.add(this.music);
-    this.music.setRefDistance(25);
+    this.music.setRefDistance(35);
     this.music.play();
   };
 
@@ -407,7 +407,7 @@ class TerrainEnvironment extends Component {
     mesh.position.set(500, 1500, -2500);
     this.scene.add(mesh);
     mesh.add(this.batFlying);
-    this.batFlying.setRefDistance(40);
+    this.batFlying.setRefDistance(50);
     this.batFlying.play();
   };
   addLights = () => {
