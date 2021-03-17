@@ -24,3 +24,8 @@ export const VideoName = {
     VIDEO_FOUR: 'VIDEO_FOUR',
     NONE: 'NONE'
 }
+
+export const ModalType = {
+    TEXT: 'TEXT',
+    VIDEO: 'VIDEO'
+}

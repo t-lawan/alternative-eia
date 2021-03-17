@@ -18,14 +18,14 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { NodePass } from "three/examples/jsm/nodes/postprocessing/NodePass";
 import * as Nodes from "three/examples/jsm/nodes/Nodes";
-import { VideoName } from "../../Utility/helper";
+import { VideoName, ModalType } from "../../Utility/helper";
 import styled from "styled-components";
 import VideoPlayer from "../VideoPlayer/VideoPlayer";
 import LoadingBar from "../Loading/LoadingBar/LoadingBar";
 import Logo from "../../Assets/Images/LOGO.png";
 import Font from "../../Assets/Fonts/Grotesk_Light_Extended.json";
 import Bat from "../../Assets/Models/bat.obj";
-import Cross from '../../Assets/Images/cross.png'
+import Cross from "../../Assets/Images/cross.png";
 
 const TextDisplayWrapper = styled.div`
   position: fixed;
@@ -82,7 +82,7 @@ const ImageIcon = styled.img`
   :hover {
     cursor: pointer;
   }
-`
+`;
 
 const VideoWrapper = styled.div`
   width: 100%;
@@ -113,6 +113,7 @@ class TerrainEnvironment extends Component {
   frame;
   mouse;
   lastBoundaryTouched = VideoName.NONE;
+  modalType = ModalType.VIDEO;
   isHovering = false;
   collidableMeshList = [];
   state = {
@@ -249,8 +250,9 @@ class TerrainEnvironment extends Component {
     this.addMultipleTrees();
     this.createVideoOneObject();
     this.createVideoTwoObject();
-    this.createVideoThreeObject()
-
+    this.createVideoThreeObject();
+    this.createVideoFourObject();
+    this.createTextObject();
     // this.addText()
     this.setState({
       loaded: 0,
@@ -349,7 +351,7 @@ class TerrainEnvironment extends Component {
   createTrainSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: "orange" , opacity: 0});
+    let material = new THREE.MeshPhongMaterial({ color: "orange", opacity: 0 });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, 1000);
     this.scene.add(mesh);
@@ -385,7 +387,7 @@ class TerrainEnvironment extends Component {
   createBatFlyingSpeaker = () => {
     //Music
     let sphere = new THREE.SphereGeometry(20, 32, 16);
-    let material = new THREE.MeshPhongMaterial({ color: "yellow" , opacity: 0});
+    let material = new THREE.MeshPhongMaterial({ color: "yellow", opacity: 0 });
     let mesh = new THREE.Mesh(sphere, material);
     mesh.position.set(500, 1500, -2500);
     this.scene.add(mesh);
@@ -440,6 +442,7 @@ class TerrainEnvironment extends Component {
     );
     videoCollsionBoundary.position.set(0, 1500, 0);
     videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_ONE;
+    videoCollsionBoundary.userData.modalType = ModalType.VIDEO;
     videoCollsionBoundary.visible = false;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
@@ -464,6 +467,7 @@ class TerrainEnvironment extends Component {
     );
     videoCollsionBoundary.position.set(500, 1000, 0);
     videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_TWO;
+    videoCollsionBoundary.userData.modalType = ModalType.VIDEO;
     videoCollsionBoundary.visible = false;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
@@ -486,17 +490,71 @@ class TerrainEnvironment extends Component {
       videoCollisionGeometry,
       wireMaterial
     );
-    videoCollsionBoundary.position.set(-500, -1000, 0);
+    videoCollsionBoundary.position.set(-500, 1000, 0);
     videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_THREE;
+    videoCollsionBoundary.userData.modalType = ModalType.VIDEO;
     videoCollsionBoundary.visible = false;
     this.scene.add(videoCollsionBoundary);
     this.collidableMeshList.push(videoCollsionBoundary);
 
     let videoThreeBat = this.bat.clone();
-    videoThreeBat.position.set(-500, -1000, 0);
+    videoThreeBat.position.set(-500, 1000, 0);
     videoThreeBat.userData.collisionBoundary = videoCollsionBoundary;
     this.clickableObjects.push(videoThreeBat);
     this.scene.add(videoThreeBat);
+  };
+
+  createVideoFourObject = () => {
+    let videoCollisionGeometry = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
+    var wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      opacity: 1
+    });
+    let videoCollsionBoundary = new THREE.Mesh(
+      videoCollisionGeometry,
+      wireMaterial
+    );
+    videoCollsionBoundary.position.set(200, 1000, 300);
+    videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_FOUR;
+    videoCollsionBoundary.userData.modalType = ModalType.VIDEO;
+    videoCollsionBoundary.visible = false;
+    this.scene.add(videoCollsionBoundary);
+    this.collidableMeshList.push(videoCollsionBoundary);
+
+    let videoThreeBat = this.bat.clone();
+    videoThreeBat.position.set(200, 1000, 300);
+    videoThreeBat.userData.collisionBoundary = videoCollsionBoundary;
+    this.clickableObjects.push(videoThreeBat);
+    this.scene.add(videoThreeBat);
+  };
+
+  createTextObject = () => {
+    let videoCollisionGeometry = new THREE.BoxGeometry(100, 100, 100, 1, 1, 1);
+    var wireMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      wireframe: true,
+      opacity: 1
+    });
+    let videoCollsionBoundary = new THREE.Mesh(
+      videoCollisionGeometry,
+      wireMaterial
+    );
+    videoCollsionBoundary.position.set(-100, 2000, 0);
+    videoCollsionBoundary.userData.videoClip = VideoName.VIDEO_ONE;
+    videoCollsionBoundary.userData.modalType = ModalType.TEXT;
+    videoCollsionBoundary.visible = false;
+    this.scene.add(videoCollsionBoundary);
+    this.collidableMeshList.push(videoCollsionBoundary);
+
+    let sphere = new THREE.SphereGeometry(20, 32, 16);
+    let material = new THREE.MeshPhongMaterial({ color: "orange" });
+    let mesh = new THREE.Mesh(sphere, material);
+    mesh.position.set(-100, 2000, 0);
+    mesh.userData.collisionBoundary = videoCollsionBoundary;
+
+    this.clickableObjects.push(mesh);
+    this.scene.add(mesh);
   };
 
   addMultipleTrees = () => {
@@ -876,6 +934,13 @@ class TerrainEnvironment extends Component {
           break;
         }
       }
+
+      if (this.modalType === ModalType.VIDEO) {
+        this.setState({
+          showVideo: true,
+          pause: true
+        });
+      }
     }
   };
 
@@ -897,6 +962,9 @@ class TerrainEnvironment extends Component {
           let obj = this.intersects[0].object;
           if (obj.userData.videoClip) {
             this.lastBoundaryTouched = obj.userData.videoClip;
+          }
+          if (obj.userData.modalType) {
+            this.modalType = obj.userData.modalType;
           }
           if (!this.state.isInVideoBox) {
             this.setState({
@@ -937,7 +1005,7 @@ class TerrainEnvironment extends Component {
         <TextDisplayWrapper hidden={!this.state.isInVideoBox}>
           <Text hidden={!this.state.showSimulation}>
             {" "}
-            press p to play video
+            press p to {this.modalType === ModalType.VIDEO ? 'play video' : 'view text'}
           </Text>
         </TextDisplayWrapper>
         <LoadingWrapper hidden={this.state.showSimulation}>
@@ -961,9 +1029,64 @@ class TerrainEnvironment extends Component {
         </LoadingWrapper>
         <VideoModalWrapper hidden={!this.state.showVideo}>
           <VideoWrapper>
-            <ImageIcon onClick={() => this.closeVideo()} src={Cross} /> 
+            <ImageIcon onClick={() => this.closeVideo()} src={Cross} />
 
-            <VideoPlayer videoUrl={this.lastBoundaryTouched} />
+            {this.modalType === ModalType.VIDEO ? (
+              <VideoPlayer videoUrl={this.lastBoundaryTouched} />
+            ) : null}
+            {this.modalType === ModalType.TEXT ? (
+              <div>
+                <p>
+                  Bat spells is a counter-proposal to the methodology of
+                  environmental assessment to measure the impacts of
+                  infrastructural projects on the environment.
+                </p>
+                <p>
+                  Bat Spells is a speculative landscape, an unstable image, a
+                  simulation somewhere between a real and a fictional
+                  environment. The digital landscape presents impressions from
+                  the route where the High Speed Rail network, HS2, will be
+                  built over the next decades in the UK, and which will displace
+                  and likely kill many protected bats. Bat Spells is an
+                  alternative Environmental Impact Assessment (EIA) tool that is
+                  used in the context of many large scale infrastructure
+                  projects.
+                </p>
+                <p>
+                  As a counter-proposal for the methods used by the EIA to
+                  assess and ascribe a value to the landscape in a quantifiable
+                  manner, Bat Spells explore ways of recording multi sensory
+                  impressions of a landscape from different perspectives. The
+                  landscape can be experienced remotely through a website
+                  simulation that includes videos, sounds, texts and images
+                  uploaded by various people.
+                </p>
+                <p>
+                  A simulation in which chance encounters are possible and which
+                  is navigated in a manner that doesn’t presuppose certain cause
+                  and effect from one action to another. The model presents it’s
+                  limitations and the different mediums and categories blend to
+                  each other – enßvironment as a space in which various
+                  entanglements co-create each other.
+                </p>
+                <p>
+                  The trees that are lit with spotlights and fenced off,
+                  supposedly protecting the bats from the construction work,
+                  render explicit that the landscape is no longer for the bats
+                  to inhabit and make it apparent that the protection measures
+                  are visible and meaningful only to and for people.
+                </p>
+                <p>
+                  Bat Spells suggests tuning into the sounds of the environment
+                  and for example collaborating with machine learning to detect
+                  different species as a way to engage with and learn from a
+                  landscape and it’s species. The high ideals of EIA tools that
+                  aim to capture the whole landscape usually fail, because it is
+                  impossible to create an accurate image of a landscape. The
+                  image will never be the same as the real thing.
+                </p>
+              </div>
+            ) : null}
           </VideoWrapper>
         </VideoModalWrapper>
       </React.Fragment>
