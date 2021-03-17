@@ -101,8 +101,11 @@ const Text = styled.h1`
 const Paragraph = styled.p`
   color: rgb(209, 114, 39);
   font-weight: bold;
+  font-size: 1.3rem
 `;
 const ParagraphWrapper = styled.div`
+  overflow-y: scroll;
+
   width: 60%;
   text-align: left;
   padding: 1rem;

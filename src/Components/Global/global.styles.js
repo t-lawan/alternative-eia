@@ -52,7 +52,7 @@ overflow-y: hidden;
 
   }
   ::-webkit-scrollbar-thumb {
-    background: ${Colours.dark_grey};
+    background: rgb(209, 114, 39);
   }
     }
 
