@@ -89,7 +89,7 @@ const VideoWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: center;
+  align-items: baseline;
   height: 100%;
 `;
 const Text = styled.h1`
@@ -104,7 +104,10 @@ const Paragraph = styled.p`
   font-weight: bold;
 `;
 const ParagraphWrapper = styled.div`
-  width: 70%;
+  width: 60%;
+  text-align: left;
+  padding: 1rem;
+  padding-bottom: 0;
 `;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
@@ -906,6 +909,7 @@ class TerrainEnvironment extends Component {
     console.log("KEY", event.key);
     console.log("box", this.state.isInVideoBox);
     if (this.state.isInVideoBox && event.key === "p") {
+      this.controls.enabled = false;
       if(this.lastBoundaryTouched) {
         this.setState({
           showVideo: true,
@@ -967,6 +971,7 @@ class TerrainEnvironment extends Component {
   };
 
   closeVideo = () => {
+    this.controls.enabled =true;
     this.setState({
       showVideo: false,
       pause: false
