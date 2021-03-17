@@ -97,6 +97,15 @@ const Text = styled.h1`
   font-style: italic;
   font-weight: bold;
 `;
+
+const Paragraph = styled.p`
+  color: rgb(209, 114, 39);
+  font-style: italic;
+  font-weight: bold;
+`;
+const ParagraphWrapper = styled.div`
+  width: 70%;
+`;
 const style = {
   height: "100vh" // we can control scene size by setting container dimensions
 };
@@ -897,48 +906,20 @@ class TerrainEnvironment extends Component {
     console.log("KEY", event.key);
     console.log("box", this.state.isInVideoBox);
     if (this.state.isInVideoBox && event.key === "p") {
-      switch (this.lastBoundaryTouched) {
-        case VideoName.STAR_FALLING: {
-          this.setState({
-            showVideo: true,
-            pause: true
-          });
-          break;
-        }
-        case VideoName.VIDEO_ONE: {
-          this.setState({
-            showVideo: true,
-            pause: true
-          });
-          break;
-        }
-        case VideoName.VIDEO_TWO: {
-          this.setState({
-            showVideo: true,
-            pause: true
-          });
-          break;
-        }
-        case VideoName.VIDEO_THREE: {
-          this.setState({
-            showVideo: true,
-            pause: true
-          });
-          break;
-        }
-        case VideoName.VIDEO_FOUR: {
-          this.setState({
-            showVideo: true,
-            pause: true
-          });
-          break;
-        }
-      }
-
-      if (this.modalType === ModalType.VIDEO) {
+      if(this.lastBoundaryTouched) {
         this.setState({
           showVideo: true,
-          pause: true
+          pause: true,
+          isInVideoBox: false
+        });
+      }
+
+
+      if (this.modalType === ModalType.TEXT) {
+        this.setState({
+          showVideo: true,
+          pause: true,
+          isInVideoBox: false
         });
       }
     }
@@ -1005,7 +986,8 @@ class TerrainEnvironment extends Component {
         <TextDisplayWrapper hidden={!this.state.isInVideoBox}>
           <Text hidden={!this.state.showSimulation}>
             {" "}
-            press p to {this.modalType === ModalType.VIDEO ? 'play video' : 'view text'}
+            press p to{" "}
+            {this.modalType === ModalType.VIDEO ? "play video" : "view text"}
           </Text>
         </TextDisplayWrapper>
         <LoadingWrapper hidden={this.state.showSimulation}>
@@ -1035,13 +1017,13 @@ class TerrainEnvironment extends Component {
               <VideoPlayer videoUrl={this.lastBoundaryTouched} />
             ) : null}
             {this.modalType === ModalType.TEXT ? (
-              <div>
-                <p>
+              <ParagraphWrapper>
+                <Paragraph>
                   Bat spells is a counter-proposal to the methodology of
                   environmental assessment to measure the impacts of
                   infrastructural projects on the environment.
-                </p>
-                <p>
+                </Paragraph>
+                <Paragraph>
                   Bat Spells is a speculative landscape, an unstable image, a
                   simulation somewhere between a real and a fictional
                   environment. The digital landscape presents impressions from
@@ -1051,8 +1033,8 @@ class TerrainEnvironment extends Component {
                   alternative Environmental Impact Assessment (EIA) tool that is
                   used in the context of many large scale infrastructure
                   projects.
-                </p>
-                <p>
+                </Paragraph>
+                <Paragraph>
                   As a counter-proposal for the methods used by the EIA to
                   assess and ascribe a value to the landscape in a quantifiable
                   manner, Bat Spells explore ways of recording multi sensory
@@ -1060,23 +1042,23 @@ class TerrainEnvironment extends Component {
                   landscape can be experienced remotely through a website
                   simulation that includes videos, sounds, texts and images
                   uploaded by various people.
-                </p>
-                <p>
+                </Paragraph>
+                <Paragraph>
                   A simulation in which chance encounters are possible and which
                   is navigated in a manner that doesn’t presuppose certain cause
                   and effect from one action to another. The model presents it’s
                   limitations and the different mediums and categories blend to
                   each other – enßvironment as a space in which various
                   entanglements co-create each other.
-                </p>
-                <p>
+                </Paragraph>
+                <Paragraph>
                   The trees that are lit with spotlights and fenced off,
                   supposedly protecting the bats from the construction work,
                   render explicit that the landscape is no longer for the bats
                   to inhabit and make it apparent that the protection measures
                   are visible and meaningful only to and for people.
-                </p>
-                <p>
+                </Paragraph>
+                <Paragraph>
                   Bat Spells suggests tuning into the sounds of the environment
                   and for example collaborating with machine learning to detect
                   different species as a way to engage with and learn from a
@@ -1084,8 +1066,8 @@ class TerrainEnvironment extends Component {
                   aim to capture the whole landscape usually fail, because it is
                   impossible to create an accurate image of a landscape. The
                   image will never be the same as the real thing.
-                </p>
-              </div>
+                </Paragraph>
+              </ParagraphWrapper>
             ) : null}
           </VideoWrapper>
         </VideoModalWrapper>

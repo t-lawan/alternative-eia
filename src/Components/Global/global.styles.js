@@ -1,6 +1,6 @@
 import styled, { createGlobalStyle } from "styled-components";
 import NHaasGroteskDSPro from "../../Assets/Fonts/NHaasGroteskDSPro-55Rg.ttf";
-import AvaraBold from "../../Assets/Fonts/Avara-BoldItalic.ttf";
+import AvaraBold from "../../Assets/Fonts/Avara-BoldItalic.woff";
 export const size = {
   mobileS: "320px",
   mobileM: "420px",
@@ -28,8 +28,8 @@ export const Colours = {
 
 export const GlobalStyle = createGlobalStyle`
   @font-face {
-    font-family: 'AvaraBold';
-    src: url(${AvaraBold}) format('ttf');
+    font-family: AvaraBold;
+    src: url(${AvaraBold});
     font-weight: bold;
     font-style: italic;
 }
@@ -51,7 +51,7 @@ overflow-y: hidden;
 
 html, body {
   margin: 0;
-  font-family:'AvaraBold';
+  font-family:AvaraBold;
   cursor: crosshair;
   background: ${Colours.grey};
   width: 100%;
