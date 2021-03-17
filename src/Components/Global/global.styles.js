@@ -1,6 +1,7 @@
 import styled, { createGlobalStyle } from "styled-components";
 import NHaasGroteskDSPro from "../../Assets/Fonts/NHaasGroteskDSPro-55Rg.ttf";
-import AvaraBold from "../../Assets/Fonts/Avara-BoldItalic.woff";
+import AvaraBoldItalic from "../../Assets/Fonts/Avara-BoldItalic.woff";
+import AvaraBold from "../../Assets/Fonts/Avara-Bold.woff";
 export const size = {
   mobileS: "320px",
   mobileM: "420px",
@@ -29,10 +30,16 @@ export const Colours = {
 export const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: AvaraBold;
-    src: url(${AvaraBold});
+    src: url(${AvaraBoldItalic});
     font-weight: bold;
     font-style: italic;
 }
+@font-face {
+    font-family: AvaraBold;
+    src: url(${AvaraBold});
+    font-weight: bold;
+}
+
   * {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -127,7 +134,7 @@ p, li, a, span{
   padding-left: 0;
   padding-right: 0;
   padding-top: 0;
-  ${'' /* font-size: 1.5rem  !important; */}
+  ${"" /* font-size: 1.5rem  !important; */}
   line-height: 1.3;
   font-weight: 100 !important;
   @media (max-width: ${size.tabletL}) {

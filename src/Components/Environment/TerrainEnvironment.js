@@ -100,7 +100,6 @@ const Text = styled.h1`
 
 const Paragraph = styled.p`
   color: rgb(209, 114, 39);
-  font-style: italic;
   font-weight: bold;
 `;
 const ParagraphWrapper = styled.div`
