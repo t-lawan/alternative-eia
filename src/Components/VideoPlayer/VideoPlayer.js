@@ -84,7 +84,7 @@ class VideoPlayer extends React.Component {
           height={"100%"}
           width={"100%"}
           playing={this.props.autoPlay}
-          muted={!this.playSound(this.props.videoUrl)}
+          muted={true}
           loop={false}
         />
       </VideoPlayerWrapper>
